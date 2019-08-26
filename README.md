@@ -1,4 +1,4 @@
-# PION_Python
+# Python Library for 2D and 3D Nested Grid PION
 created - 26|08|2019
 owner - Samuel Green
 email - green@cp.dias.ie
