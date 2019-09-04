@@ -18,7 +18,6 @@
 
 # -------------- Set of libraries needed:
 from ReadData import Read2dSiloData, Read3dSiloData
-from colormaps import cmaps
 from matplotlib.colorbar import Colorbar
 
 import matplotlib.pyplot as plt
@@ -167,27 +166,6 @@ class Plotting3d(Read3dSiloData):
         cbax = plt.subplot(gs[-1, 0:])
         cb = Colorbar(ax=cbax, mappable=im1, orientation='horizontal', ticklocation='bottom')
         # cb.set_label(r'Colorbar !', labelpad=10)
-
-        '''
-        # --------------Right Plot----------------------------
-        ax3 = fig.add_subplot(gs[0, 2])
-        # ax3.set_title('      Time = %5.5f Myr' % self.sim_time().value)
-
-        ax3.set_xlim(lim_min[2].value, lim_max[2].value)
-        ax3.set_ylim(lim_min[1].value, lim_max[1].value)
-
-        im3 = ax3.imshow(log_dz, interpolation='nearest', cmap=var1[3],
-                         extent=[level_min[2].value, level_max[2].value, level_min[1].value,
-                                 level_max[1].value],
-                         origin='lower', vmax=var1[1], vmin=var1[2], alpha=alpha)
-        # divider3 = make_axes_locatable(ax1)  # Create divider for existing axes instance.
-        # cax3 = divider3.append_axes("right", size="5%", pad=0.05)  # Append axes to the right of ax1.
-        # cbar3 = plt.colorbar(im3, cax=cax3, ticks=MultipleLocator(1),
-        #                     format="%.2f")  # Create colorbar in the appended axes.
-        # txt1 = ax1.text(0.8, 0.92, r'$log(\rho)$', transform=ax1.transAxes)
-        ax3.set_xlabel('y-axis (pc)')
-        ax3.set_ylabel('z-axis (pc)')
-        '''
 
         del xmin
         del xmax
