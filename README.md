@@ -44,8 +44,6 @@ modules installed on your system. Obviously you don't need all of these if you o
 * Silo
 * numpy
 * astropy
-* vtk
-* scipy
 * matplotlib
 
 All of these modules can be installed through _pip_ on Linux:
