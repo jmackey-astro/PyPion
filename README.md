@@ -51,7 +51,7 @@ All of these modules can be installed through _pip_ on Linux:
 ```sh
 $ pip install 'python-module'
 ```
-Edit 13-09-19: You have to install the Silo package using:
+Edit 13-09-19 -> You have to install the Silo package using:
 
 ```sh
 $ sudo apt install python-silo
