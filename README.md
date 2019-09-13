@@ -51,7 +51,11 @@ All of these modules can be installed through _pip_ on Linux:
 ```sh
 $ pip install 'python-module'
 ```
+Edit 13-09-19: You have to install the Silo package using:
 
+```sh
+$ sudo apt install python-silo
+```
 All of these modules should be available on windows through whatever python ide you use (i.e. Anaconda). Not sure how it's done on a Mac, need to ask a Mac user...
 
 <a name="how"></a>
