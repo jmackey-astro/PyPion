@@ -71,7 +71,7 @@ then
 elif [[ "$str1" == "p" ]];
 then
 	echo '....Running python script in parallel....'
-	#echo 'This actually does not work yet... but it will soon!'
+	echo 'This actually does not work yet... but it will soon!'
 	#parallel -a "python Library/plot_nestedgrid_3dslice.py $IMAG $DEST*${file:${#file}-13}" ::: "$LEVELZ"
 	#LEV=$DEST*${LEVELZ:${#LEVELZ}-13}
 	#parallel -verbose python Library/plot_nestedgrid_3dslice.py ::: "$IMAG" ::: "$LEV"
@@ -100,7 +100,7 @@ then
 elif [[ "$str1" == "p" ]];
 then
 	echo '....Running python script in parallel....'
-	#echo 'This actually does not work yet... but it will soon!'
+	echo 'This actually does not work yet... but it will soon!'
 	#parallel -a "python Library/plot_nestedgrid_3dslice.py $IMAG $DEST*${file:${#file}-13}" ::: "$LEVELZ"
 	#LEV=$DEST*${LEVELZ:${#LEVELZ}-13}
 	#parallel -verbose python Library/plot_nestedgrid_3dslice.py ::: "$IMAG" ::: "$LEV"
