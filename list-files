@@ -6,7 +6,10 @@
 
 # Comments:
 # -2019/09/04 SG: Works in serial pretty well.
+# -2019/10/2 SG: Fixed file counter, fixed trailing / on path names, now also asks if you want to continue.
 
+
+shopt -s nullglob
 
 printf "\n############################# PION_Python ###############################"
 printf "\nThis bash script runs the pion_python code to save fig of the data.\n"
@@ -28,7 +31,7 @@ do
 	#else
 		#echo $FILE1
 	fi
-	
+
 	if [ -z "$2" ];
 	then
 		echo "***There is not enough input arguments***"
@@ -37,14 +40,43 @@ do
 	fi
 done
 
+
+
 DEST=$1
+if [[ $DEST = */ ]]
+then
+	echo ""
+else
+	DEST=$DEST/
+fi
 IMAG=$2
+if [[ $IMAG = */ ]]
+then
+	echo ""
+else
+	IMAG=$IMAG/
+fi
 
 LEVELZ=$DEST*level00*
+LEV=($DEST*level00*)
 
 COUNTER=0
 
-read -p "If you wish to continue, press enter..." < /dev/tty
+printf "\nDo you wish to continue? (y/N)\n"
+read -p '....: ' str3
+
+if [[ "$str3" == "N" ]];
+#if [ "$str1" == "s" ] && [ "$str1" == "serial"];
+then
+	echo '....Stopping script....'
+	exit 1
+elif [[ "$str3" == "y" ]];
+then
+  echo '....Running script....'
+else
+	echo '....Stopping script, please type y or N....'
+	exit 1
+fi
 
 printf "\nAre you analysing 2D or 3D data files? (type 2 or 3)\n"
 read -p '....: ' str2
@@ -61,11 +93,11 @@ then
 	echo '....Running python script in serial....'
 	for file in $LEVELZ
 	do
-		
+
 		python Library/plot_nestedgrid_3dslice.py $IMAG $DEST*${file:${#file}-13}
 		COUNTER=$[COUNTER + 1]
-		echo $COUNTER "of" "${#LEVELZ[@]}" "files analysed and saved"
-	
+		echo $COUNTER "of" "${#LEV[@]}" "files analysed and saved"
+
 	done
 
 elif [[ "$str1" == "p" ]];
@@ -93,7 +125,7 @@ then
 
 		python Library/plot_nestedgrid.py $IMAG $DEST*${file:${#file}-13}
 		COUNTER=$[COUNTER + 1]
-		echo $COUNTER "of" "${#LEVELZ[@]}" "files analysed and saved"
+		echo $COUNTER "of" ${#LEV[@]} "files analysed and saved"
 
 	done
 
@@ -111,4 +143,3 @@ else
 fi
 
 fi
-
