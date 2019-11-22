@@ -45,8 +45,9 @@ modules installed on your system. Obviously you don't need all of these if you o
 * numpy
 * astropy
 * matplotlib
+* tk (python-tk)
 
-All of these modules can be installed through _pip_ on Linux:
+All of these modules can be installed through _pip_ on Linux (might have to install _pip_ first using 'apt install'):
 
 ```sh
 $ pip install 'python-module'
