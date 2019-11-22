@@ -21,7 +21,7 @@ class InputValues:
     def __init__(self):
         parser = argparse.ArgumentParser(
             description='Process some values.',
-            usage='Silo_Plot.py <path-to-files> <base-filename> <image-path> <image-filename> <file-type>')
+            usage='script.py <path-to-files> <base-filename> <image-path> <image-filename> <file-type>')
         parser.add_argument('Path', help='path to Silo files')
         parser.add_argument('file_base', help='base filename of silo files')
         parser.add_argument('img_path', help='path to save images into')
