@@ -24,8 +24,9 @@ for i in range(2, len(sys.argv)):
     arr.append(sys.argv[i])
 
 
-var1 = ["Density", -21, -27, "viridis", 'log', 'y', 127]
-
+# var1 = ["Density", -22, -27, "viridis", 'log', 'y', 127]
+# var1 = ["Temperature", 8, 3, "inferno", 'log', 'y', 127]
+var1 = ["B3D_mag", -4, -8, "magma", 'log', 'y', 127]
 # for files in InputValues().time_dicts:
 t0 = time.time()
 

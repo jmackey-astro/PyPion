@@ -118,10 +118,24 @@ class Plotting3d(Read3dSiloData):
         level_min = self.level_min().to(u.pc)  # Set data to units of parsecs.
         level_max = self.level_max().to(u.pc)
 
-        x_sliced_parameter3d = self.reshaped_parameter3d(var1[0])[var1[6], :, :]
-        y_sliced_parameter3d = self.reshaped_parameter3d(var1[0])[:, var1[6], :]
-        z_sliced_parameter3d = self.reshaped_parameter3d(var1[0])[:, :, 127]
+        if var1[0] == 'B3D_mag':
+            magx = self.reshaped_parameter3d('MagneticFieldX')
+            magy = self.reshaped_parameter3d('MagneticFieldY')
+            magz = self.reshaped_parameter3d('MagneticFieldZ')
 
+            mag = np.sqrt((magx ** 2) + (magy ** 2) + (magz ** 2))
+
+            log_dx = np.log10(mag[var1[6], :, :])
+            log_dy = np.log10(mag[:, var1[6], :])
+
+        else:
+            x_sliced_parameter3d = self.reshaped_parameter3d(var1[0])[var1[6], :, :]
+            y_sliced_parameter3d = self.reshaped_parameter3d(var1[0])[:, var1[6], :]
+
+            log_dx = np.log10(x_sliced_parameter3d)
+            log_dy = np.log10(y_sliced_parameter3d)
+
+        '''
         if var1[4] == 'log':
             log_dx = np.log10(x_sliced_parameter3d)
             log_dy = np.log10(y_sliced_parameter3d)
@@ -130,7 +144,7 @@ class Plotting3d(Read3dSiloData):
             log_dx = x_sliced_parameter3d
             log_dy = y_sliced_parameter3d
             log_dz = z_sliced_parameter3d
-
+        '''
         # --------------Left Plot----------------------------
         ax1 = fig.add_subplot(gs[0, 0])
         ax1.set_title('                                                   Time = %5.5f Myr' % self.sim_time().value)
@@ -146,7 +160,7 @@ class Plotting3d(Read3dSiloData):
         ax1.set_xlabel('x-axis (pc)')
         ax1.set_ylabel('z-axis (pc)')
 
-        # --------------Middle Plot----------------------------
+        # --------------Right Plot----------------------------
         ax2 = fig.add_subplot(gs[0, 1])
         # ax2.set_title('Time = %5.5f Myr' % self.sim_time().value)
 
@@ -171,10 +185,8 @@ class Plotting3d(Read3dSiloData):
         del xmax
         del log_dx
         del log_dy
-        del log_dz
-        del x_sliced_parameter3d
-        del y_sliced_parameter3d
-        del z_sliced_parameter3d
+        #del x_sliced_parameter3d
+        #del y_sliced_parameter3d
         del var1
         del level_min
         del level_max
@@ -184,4 +196,3 @@ class Plotting3d(Read3dSiloData):
         del ax2
 
         return fig
-

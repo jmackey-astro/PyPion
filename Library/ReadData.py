@@ -134,4 +134,3 @@ class Read3dSiloData(OpenData):
         del f
 
         return variable_array
-
