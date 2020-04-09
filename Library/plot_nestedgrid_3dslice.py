@@ -4,8 +4,14 @@
 # Script that plots 3D data from Nested_Grid_Pion.
 
 from Plotting_Classes import Plotting3d
+
+import matplotlib
+# Using this to stop matplotlib from using a $DISPLAY environment variable.
+# i.e. This now works over ssh.
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+
 import astropy.units as u
 import time
 
@@ -24,9 +30,9 @@ for i in range(2, len(sys.argv)):
     arr.append(sys.argv[i])
 
 
-# var1 = ["Density", -22, -27, "viridis", 'log', 'y', 127]
+var1 = ["Density", -22, -27, "viridis", 'log', 'y', 63]
 # var1 = ["Temperature", 8, 3, "inferno", 'log', 'y', 127]
-var1 = ["B3D_mag", -4, -8, "magma", 'log', 'y', 127]
+#var1 = ["B3D_mag", -4, -8, "magma", 'log', 'y', 127]
 # for files in InputValues().time_dicts:
 t0 = time.time()
 

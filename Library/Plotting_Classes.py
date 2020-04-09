@@ -18,8 +18,12 @@
 
 # -------------- Set of libraries needed:
 from ReadData import Read2dSiloData, Read3dSiloData
-from matplotlib.colorbar import Colorbar
 
+import matplotlib
+# Using this to stop matplotlib from using a $DISPLAY environment variable.
+# i.e. This now works over ssh.
+matplotlib.use('Agg')
+from matplotlib.colorbar import Colorbar
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from mpl_toolkits.axes_grid1 import make_axes_locatable

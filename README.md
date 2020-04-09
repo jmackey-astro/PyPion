@@ -4,7 +4,7 @@ Modified - 04|09|2019,
 Owner - Samuel Green,
 Email - green@cp.dias.ie
 
-Welcome to the the Python Library that does post-processing on the .Silo simulation data files outputted from PION. The libray works on nested-grid and uniform-grid, and 3D and 2D Silo files.
+Welcome to the Python Library that does post-processing on the .Silo simulation data files outputted from PION. The library works on nested-grid and uniform-grid, and 3D and 2D Silo files.
 
 
 - - -
@@ -38,7 +38,7 @@ $ bash list-files 'file_location' 'image_destination'
 <a name="package"></a>
 
 ## 3\. List of python packages that are needed:
-To be able to use all the features of this library you will need to have the following python 
+To be able to use all the features of this library you will need to have the following python
 modules installed on your system. Obviously you don't need all of these if you only need parts of this library.
 
 * Silo
@@ -68,9 +68,9 @@ At the moment the main scripts in this library are:
 * argparse_command.py - Saves the options entered into the command line when the python script is run. (Currently being taken out, 04-09-19)
 * SiloHeader\_data.py - Which opens the silo file and saves all of the important header variables (eg. sim_time, xmax, xmin, etc.).
 * ReadData.py - Opens the directory in the silo (or vtk, or fits) file and saves the requested variable data (eg. density, temp, etc.).
-* Plotting_Classes.py - Sets up the plotting function and the figure. 
+* Plotting_Classes.py - Sets up the plotting function and the figure.
 * plot\_nestedgrid\_3dslice.py -  Uses functions from the previous scripts to create 2d slice figures from 3D nested\_grid_pion data.
-* plot\_nestedgrid.py - Uses functions from the previous scripts to create figures from 2D nested\_grid_pion data. 
+* plot\_nestedgrid.py - Uses functions from the previous scripts to create figures from 2D nested\_grid_pion data.
 
 
 This description is a work-in-progress...
