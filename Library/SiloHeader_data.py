@@ -6,6 +6,7 @@
 #   CLOSE() function.  Xmin/Xmax/time etc. all now new directory to /header.
 # - 15-02-2019 SG: Added new functions level_max and level_min and nlevels to help with nested grid python.
 # - 22-04-2020 SG: Added all functions that use the init function in the OpenData class.
+# - 22-04-2020 SG: Removed hard-coded cm in xmax and xmin.
 
 # -------------- Set of libraries needed:
 import Silo
@@ -30,15 +31,13 @@ class OpenData:
     # Xmax variable contains the max value for the x- and y-axis of the grid.
     def xmax(self):  # Function that returns the Xmax variable once called:
         self.db.SetDir('/header')
-        xmax = self.db.GetVar("Xmax") * u.cm
-        # xmax = xmax.to(u.pc)  # Converts the grid to parsec units.
+        xmax = self.db.GetVar("Xmax")
         return xmax
 
     # Xmin variable contains the min value for the x- and y-axis of the grid.
     def xmin(self):
         self.db.SetDir('/header')
-        xmin = self.db.GetVar("Xmin") * u.cm
-        # xmin = xmin.to(u.pc)  # Converts the grid to parsec units.
+        xmin = self.db.GetVar("Xmin")
         return xmin
 
     # level_xmax variable contains the max value for the x- and y-axis of each level.
