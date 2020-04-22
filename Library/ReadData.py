@@ -17,120 +17,128 @@
 # - 2017-10-28 SG: Rewritten some functions to remove errors, increase efficiency.
 # - 2017-10-29 SG: Bugs in reshaped_parameter2d function fixed.
 # - 2018-03-26 SG: Added class to plot slices of the 3D data.
+# - 22-04-2020 SG: Moved the parameter and variable function to SiloHeader_data.py
+# - 22-04-2020 SG: Both functions now open all the files associated with each timestep and saves the data arrays for each of them.
+# This is to make the scripts work with nested-grids.
+# Works in 2D and 3D. Should also work with non-nestedgrid too (i.e. 1 level of data).
 
 # -------------- Set of libraries needed:
 import numpy as np
-# import astropy.constants as apc
-# from astropy import units as u
-# import math
-# from astropy.convolution import convolve, convolve_fft, Gaussian2DKernel, CustomKernel, Model2DKernel
-# from astropy.modeling.models import Gaussian2D
-# from astropy.io import fits
-# import scipy
-# from scipy import ndimage
-
 from SiloHeader_data import OpenData
 
 # --------------Class to access each 2D sub-domain and save density, temperature, etc. data:
 
 
-class Read2dSiloData(OpenData):
-    def variable(self, data):  # Retrieves the requested data from the silo file
-        param = self.db.GetVar(data + "_data")  # Saves the selected data as a variable.
-        param_dims = self.db.GetVar(data + "_dims")  # Saves the selected data's dimensions.
-        param_dims = param_dims[::-1]  # Reshapes the dimensions into the correct orientation.
-        param = np.array(param).reshape(param_dims)  # Puts the array into the correct format, i.e. (a,b).
-        return param
+class ReadData:
+    def __init__(self, data, param):  # This will open the .SILO file and enters the 'header' directory.
+        self.data = data
+        self.param = param
 
-    # Function that loops through all the selected data from each sub-domain and saves it to an empty 1D array:
-    def parameter2d(self, data):
-        array_param = []
+    def get_2Darray(self):
 
-        for n in range(self.nproc()):
-            nn = "%04d" % (n,)  # Sub-domains are called rank_XXXX_domain_XXXX.
-            self.db.SetDir("/rank_%s_domain_%s/" % (nn, nn))
+        open = OpenData(self.data[0])
+        level = open.nlevels()
+        arr =  [[None]] * level
+        level_max = [[None]] * level
+        level_min = [[None]] * level
+        sim_time = open.sim_time().value
 
-            variable_data = self.variable(data)
-            array_param.append(variable_data)  # Saves the selected data into the empty array.
-        return array_param
+        open.close()
+        del open
 
-    def reshaped_parameter2d(self, data):
-        variable_array = np.zeros((self.ngrid()[1], self.ngrid()[0]))
+        i = 0
+        for file in self.data:
+            opendata = OpenData(file)
 
-        a = self.dom_size()['DomSize'][0]
-        b = self.dom_size()['DomSize'][1]
-        c = self.dom_size()['Ndom'][0]
-        d = self.dom_size()['Ndom'][1]
-        e = self.parameter2d(data)
+            variable_array = np.zeros((opendata.ngrid()[1], opendata.ngrid()[0]))
 
-        for jD in range(d):
-            for iD in range(c):
-                x0 = iD * a  # Sets the positions of each process array.
-                y0 = jD * b
-                x1 = x0 + a
-                y1 = y0 + b
+            a = opendata.dom_size()['DomSize'][0]
+            b = opendata.dom_size()['DomSize'][1]
+            c = opendata.dom_size()['Ndom'][0]
+            d = opendata.dom_size()['Ndom'][1]
+            e = opendata.parameter(self.param)
 
-                domain = jD * c + iD
-                variable_array[y0:y1, x0:x1] = e[domain]  # Saves all the values into the 2D image array
-
-        del a
-        del b
-        del c
-        del d
-        del e
-
-        return variable_array
-
-
-class Read3dSiloData(OpenData):
-    def variable(self, data):  # Retrieves the requested data from the silo file
-        param = self.db.GetVar(data + "_data")  # Saves the selected data as a variable.
-        param_dims = self.db.GetVar(data + "_dims")  # Saves the selected data's dimensions.
-        param_dims = param_dims[::-1]  # Reshapes the dimensions into the correct orientation.
-        param = np.array(param).reshape(param_dims)  # Puts the array into the correct format, i.e. (a,b).
-        return param
-
-    def parameter3d(self, data):
-        array_param = []
-
-        for n in range(self.nproc()):
-            nn = "%04d" % (n,)  # Sub-domains are called rank_XXXX_domain_XXXX.
-            self.db.SetDir("/rank_%s_domain_%s/" % (nn, nn))
-
-            variable_data = self.variable(data)
-            array_param.append(variable_data)  # Saves the selected data into the empty array.
-        return array_param
-
-    def reshaped_parameter3d(self, data):
-        variable_array = np.zeros((self.ngrid()[2], self.ngrid()[1], self.ngrid()[0]))
-
-        a = self.dom_size()['DomSize'][0]
-        b = self.dom_size()['DomSize'][1]
-        f = self.dom_size()['DomSize'][2]
-        c = self.dom_size()['Ndom'][0]
-        d = self.dom_size()['Ndom'][1]
-        g = self.dom_size()['Ndom'][2]
-        e = self.parameter3d(data)
-
-        for kD in range(g):
             for jD in range(d):
                 for iD in range(c):
                     x0 = iD * a  # Sets the positions of each process array.
                     y0 = jD * b
-                    z0 = kD * f
                     x1 = x0 + a
                     y1 = y0 + b
-                    z1 = z0 + f
 
-                    domain = kD * d * d + jD * c + iD
-                    variable_array[z0:z1, y0:y1, x0:x1] = e[domain]  # Saves all the values into the 2D image array
+                    domain = jD * c + iD
+                    variable_array[y0:y1, x0:x1] = e[domain]  # Saves all the values into the 2D image array
+                    level_max[i] = opendata.level_max()
+                    level_min[i] = opendata.level_min()
 
-        del a
-        del b
-        del c
-        del d
-        del e
-        del g
-        del f
+            arr[i] = variable_array
+            i += 1
 
-        return variable_array
+            del a
+            del b
+            del c
+            del d
+            del e
+            del variable_array
+            opendata.close()
+            del opendata
+
+        return {'data': arr, 'max_extents': level_max, 'min_extents': level_min, 'sim_time': sim_time}
+
+    def get_3Darray(self):
+
+        open = OpenData(self.data[0])
+        level = open.nlevels()
+        arr =  [[None]] * level
+        level_max = [[None]] * level
+        level_min = [[None]] * level
+        sim_time = open.sim_time().value
+
+        open.close()
+        del open
+
+        i = 0
+        for file in self.data:
+            opendata = OpenData(file)
+
+            variable_array = np.zeros((opendata.ngrid()[2], opendata.ngrid()[1], opendata.ngrid()[0]))
+
+            print file
+
+            a = opendata.dom_size()['DomSize'][0]
+            b = opendata.dom_size()['DomSize'][1]
+            f = opendata.dom_size()['DomSize'][2]
+            c = opendata.dom_size()['Ndom'][0]
+            d = opendata.dom_size()['Ndom'][1]
+            g = opendata.dom_size()['Ndom'][2]
+            e = opendata.parameter(self.param)
+
+            for kD in range(g):
+                for jD in range(d):
+                    for iD in range(c):
+                        x0 = iD * a  # Sets the positions of each process array.
+                        y0 = jD * b
+                        z0 = kD * f
+                        x1 = x0 + a
+                        y1 = y0 + b
+                        z1 = z0 + f
+
+                        domain = kD * d * d + jD * c + iD
+                        variable_array[z0:z1, y0:y1, x0:x1] = e[domain]  # Saves all the values into the 2D image array
+
+            arr[i] = variable_array
+            level_max[i] = opendata.level_max()
+            level_min[i] = opendata.level_min()
+            i += 1
+
+            del a
+            del b
+            del c
+            del d
+            del e
+            del g
+            del f
+            del variable_array
+            opendata.close()
+            del opendata
+
+        return {'data': arr, 'max_extents': level_max, 'min_extents': level_min, 'sim_time': sim_time}
