@@ -5,6 +5,7 @@
 # - 2016-12.14 JM: ReadData has a CLOSE() function that calls the OpenSilo
 #   CLOSE() function.  Xmin/Xmax/time etc. all now new directory to /header.
 # - 15-02-2019 SG: Added new functions level_max and level_min and nlevels to help with nested grid python.
+# - 22-04-2020 SG: Added all functions that use the init function in the OpenData class.
 
 # -------------- Set of libraries needed:
 import Silo
@@ -43,18 +44,18 @@ class OpenData:
     # level_xmax variable contains the max value for the x- and y-axis of each level.
     def level_max(self):  # Function that returns the level_xmax variable once called:
         self.db.SetDir('/header')
-        level_max = self.db.GetVar("level_xmax") * u.cm
+        level_max = self.db.GetVar("level_xmax")
         return level_max
 
     # level_xmin variable contains the min value for the x- and y-axis of each level.
     def level_min(self):
         self.db.SetDir('/header')
-        level_min = self.db.GetVar("level_xmin") * u.cm
+        level_min = self.db.GetVar("level_xmin")
         return level_min
 
     # nlevels variable contains the number of levels in the simulation.
     def nlevels(self):  # Function that returns the grid levels variable once called:
-        self.db.SetDir('header')
+        self.db.SetDir('/header')
         level = self.db.GetVar("grid_nlevels")
         return level
 
@@ -90,3 +91,21 @@ class OpenData:
         domsize = self.ngrid() / ndom
         ndom1 = ndom
         return {'DomSize': domsize, 'Ndom': ndom1}
+
+    def variable(self, par):  # Retrieves the requested data from the silo file
+        param = self.db.GetVar(par + "_data")  # Saves the selected data as a variable.
+        param_dims = self.db.GetVar(par + "_dims")  # Saves the selected data's dimensions.
+        param_dims = param_dims[::-1]  # Reshapes the dimensions into the correct orientation.
+        param = np.array(param).reshape(param_dims)  # Puts the array into the correct format, i.e. (a,b).
+        return param
+
+    def parameter(self, data):
+        array_param = []
+
+        for n in range(self.nproc()):
+            nn = "%04d" % (n,)  # Sub-domains are called rank_XXXX_domain_XXXX.
+            self.db.SetDir("/rank_%s_domain_%s/" % (nn, nn))
+
+            variable_data = self.variable(data)
+            array_param.append(variable_data)  # Saves the selected data into the empty array.
+        return array_param
