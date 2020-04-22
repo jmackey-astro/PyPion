@@ -16,6 +16,22 @@
 # -2019-07-22 SG: Added class to plot slices of the 3D data.
 # -2019-08-12 SG: Tidied up a few things.
 
+#############################################################
+# Here's what each function does at a glance:
+
+# 3D stuff:
+# XZslice - plots a slice in the XZ-direction.
+# XYslice - plots a slice in the XY-direction.
+# XZXYslice - plots a slice in the XZ and XY -direction onto the same figure.
+
+# magplot - plots the magnitude of the magnetic field.
+#----------------------------------------------------------
+# 2D stuff:
+# plot_single - plots a single parameter in the top-half of the sim.
+# plot_double - plots 1 parameter above the x-axis and another below it.
+# Used when you've anly simulated half on the 2D object.
+
+#############################################################
 # -------------- Set of libraries needed:
 from ReadData import ReadData
 
@@ -116,7 +132,7 @@ class Plotting2d(ReadData):
 
 
 class Plotting(ReadData):
-    def plot3Dslice(self):
+    def XZXYslice(self):
 
         # assign necessary data to arrays.
         data = self.get_3Darray()['data']
