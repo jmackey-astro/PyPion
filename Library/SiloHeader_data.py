@@ -18,8 +18,16 @@ from astropy import units as u
 
 class OpenData:
     def __init__(self, files):  # This will open the .SILO file and enters the 'header' directory.
-        self.db = Silo.Open(files)
+        print(files)
+        self.data = files
+        self.db = Silo.Open(files[0])
         self.db.SetDir('/header')
+
+    def open(self,level):
+        self.db.Close()
+        self.db = Silo.Open(self.data[level])
+        self.db.SetDir('/header')
+        print("OPEN",self.level_max())
 
     def close(self):  # To close all the variables after use.
         self.db.Close()
@@ -58,6 +66,12 @@ class OpenData:
         level = self.db.GetVar("grid_nlevels")
         return level
 
+    # cycle is the simulation timestep on the finest level.
+    def cycle(self):  # Function that returns the simulation cycle:
+        self.db.SetDir('/')
+        cycle = self.db.GetVar("cycle")
+        return cycle
+
     # sim_time variable contains the simulation time.
     def sim_time(self):
         self.db.SetDir('/header')
@@ -69,6 +83,7 @@ class OpenData:
     def ngrid(self):
         self.db.SetDir('/header')
         ngrid = self.db.GetVar("NGrid")  # Gets the size of the image grid
+        ngrid = [int(_) for _ in ngrid]
         return ngrid
 
     # nproc variable contains the number of domains in the silo file.
@@ -88,7 +103,9 @@ class OpenData:
             ndom[axis] *= 2
             cells[axis] /= 2
         domsize = self.ngrid() / ndom
+        domsize = [int(_) for _ in domsize]
         ndom1 = ndom
+        ndom1 = [int(_) for _ in ndom1]
         return {'DomSize': domsize, 'Ndom': ndom1}
 
     def variable(self, par):  # Retrieves the requested data from the silo file

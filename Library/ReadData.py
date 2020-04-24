@@ -29,33 +29,31 @@ from SiloHeader_data import OpenData
 # --------------Class to access each 2D sub-domain and save density, temperature, etc. data:
 
 
-class ReadData:
-    def __init__(self, data):  # This will open the .SILO file and enters the 'header' directory.
-        self.data = data
+class ReadData(OpenData):
+#    def __init__(self, data):  # This will open the .SILO file and enters the 'header' directory.
+#        self.data = data
 
     def get_2Darray(self, param):
 
-        open = OpenData(self.data[0])
-        level = open.nlevels()
+        level = self.nlevels()
         arr =  [[None]] * level
         level_max = [[None]] * level
         level_min = [[None]] * level
-        sim_time = open.sim_time().value
-
-        open.close()
-        del open
+        sim_time = self.sim_time().value
 
         i = 0
         for file in self.data:
-            opendata = OpenData(file)
+            #print(i,file)
+            #opendata = OpenData(file)
+            self.open(i)
 
-            variable_array = np.zeros((opendata.ngrid()[1], opendata.ngrid()[0]))
+            variable_array = np.zeros((self.ngrid()[1], self.ngrid()[0]))
 
-            a = opendata.dom_size()['DomSize'][0]
-            b = opendata.dom_size()['DomSize'][1]
-            c = opendata.dom_size()['Ndom'][0]
-            d = opendata.dom_size()['Ndom'][1]
-            e = opendata.parameter(param)
+            a = self.dom_size()['DomSize'][0]
+            b = self.dom_size()['DomSize'][1]
+            c = self.dom_size()['Ndom'][0]
+            d = self.dom_size()['Ndom'][1]
+            e = self.parameter(param)
 
             for jD in range(d):
                 for iD in range(c):
@@ -66,8 +64,9 @@ class ReadData:
 
                     domain = jD * c + iD
                     variable_array[y0:y1, x0:x1] = e[domain]  # Saves all the values into the 2D image array
-                    level_max[i] = opendata.level_max()
-                    level_min[i] = opendata.level_min()
+                    level_max[i] = self.level_max()
+                    level_min[i] = self.level_min()
+            print(level_min[i],level_max[i])
 
             arr[i] = variable_array
             i += 1
@@ -78,38 +77,36 @@ class ReadData:
             del d
             del e
             del variable_array
-            opendata.close()
-            del opendata
 
         return {'data': arr, 'max_extents': level_max, 'min_extents': level_min, 'sim_time': sim_time}
 
     def get_3Darray(self, param):
 
-        open = OpenData(self.data[0])
-        level = open.nlevels()
+        self.open(i)
+        level = self.nlevels()
         arr =  [[None]] * level
         level_max = [[None]] * level
         level_min = [[None]] * level
-        sim_time = open.sim_time().value
+        sim_time = self.sim_time().value
 
-        open.close()
+        self.close()
         del open
 
         i = 0
         for file in self.data:
-            opendata = OpenData(file)
+            self.open(i)
 
-            variable_array = np.zeros((opendata.ngrid()[2], opendata.ngrid()[1], opendata.ngrid()[0]))
+            variable_array = np.zeros((self.ngrid()[2], self.ngrid()[1], self.ngrid()[0]))
 
             print(file)
 
-            a = opendata.dom_size()['DomSize'][0]
-            b = opendata.dom_size()['DomSize'][1]
-            f = opendata.dom_size()['DomSize'][2]
-            c = opendata.dom_size()['Ndom'][0]
-            d = opendata.dom_size()['Ndom'][1]
-            g = opendata.dom_size()['Ndom'][2]
-            e = opendata.parameter(param)
+            a = self.dom_size()['DomSize'][0]
+            b = self.dom_size()['DomSize'][1]
+            f = self.dom_size()['DomSize'][2]
+            c = self.dom_size()['Ndom'][0]
+            d = self.dom_size()['Ndom'][1]
+            g = self.dom_size()['Ndom'][2]
+            e = self.parameter(param)
 
             for kD in range(g):
                 for jD in range(d):
@@ -125,8 +122,8 @@ class ReadData:
                         variable_array[z0:z1, y0:y1, x0:x1] = e[domain]  # Saves all the values into the 2D image array
 
             arr[i] = variable_array
-            level_max[i] = opendata.level_max()
-            level_min[i] = opendata.level_min()
+            level_max[i] = self.level_max()
+            level_min[i] = self.level_min()
             i += 1
 
             del a
@@ -137,7 +134,6 @@ class ReadData:
             del g
             del f
             del variable_array
-            opendata.close()
-            del opendata
+            del self
 
         return {'data': arr, 'max_extents': level_max, 'min_extents': level_min, 'sim_time': sim_time}
