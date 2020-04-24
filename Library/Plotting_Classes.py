@@ -203,7 +203,7 @@ if var1[0] == 'B3D_mag':
     log_dy = np.log10(mag[:, var1[6], :])
 '''
 
-arr = ('files/zeta_10uG_level00_0000.00100000.silo', 'files/zeta_10uG_level01_0000.00100000.silo', 'files/zeta_10uG_level02_0000.00100000.silo')
+#arr = ('files/zeta_10uG_level00_0000.00100000.silo', 'files/zeta_10uG_level01_0000.00100000.silo', 'files/zeta_10uG_level02_0000.00100000.silo')
 
-a = Plotting(arr, 'Density').plot3Dslice()
-plt.savefig("test.png", bbox_inches='tight', dpi=300)
+#a = Plotting(arr, 'Density').plot3Dslice()
+#plt.savefig("test.png", bbox_inches='tight', dpi=300)

@@ -30,11 +30,10 @@ from SiloHeader_data import OpenData
 
 
 class ReadData:
-    def __init__(self, data, param):  # This will open the .SILO file and enters the 'header' directory.
+    def __init__(self, data):  # This will open the .SILO file and enters the 'header' directory.
         self.data = data
-        self.param = param
 
-    def get_2Darray(self):
+    def get_2Darray(self, param):
 
         open = OpenData(self.data[0])
         level = open.nlevels()
@@ -56,7 +55,7 @@ class ReadData:
             b = opendata.dom_size()['DomSize'][1]
             c = opendata.dom_size()['Ndom'][0]
             d = opendata.dom_size()['Ndom'][1]
-            e = opendata.parameter(self.param)
+            e = opendata.parameter(param)
 
             for jD in range(d):
                 for iD in range(c):
@@ -84,7 +83,7 @@ class ReadData:
 
         return {'data': arr, 'max_extents': level_max, 'min_extents': level_min, 'sim_time': sim_time}
 
-    def get_3Darray(self):
+    def get_3Darray(self, param):
 
         open = OpenData(self.data[0])
         level = open.nlevels()
@@ -102,7 +101,7 @@ class ReadData:
 
             variable_array = np.zeros((opendata.ngrid()[2], opendata.ngrid()[1], opendata.ngrid()[0]))
 
-            print file
+            print(file)
 
             a = opendata.dom_size()['DomSize'][0]
             b = opendata.dom_size()['DomSize'][1]
@@ -110,7 +109,7 @@ class ReadData:
             c = opendata.dom_size()['Ndom'][0]
             d = opendata.dom_size()['Ndom'][1]
             g = opendata.dom_size()['Ndom'][2]
-            e = opendata.parameter(self.param)
+            e = opendata.parameter(param)
 
             for kD in range(g):
                 for jD in range(d):
