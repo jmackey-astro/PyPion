@@ -132,15 +132,13 @@ class Plotting2d(ReadData):
 
 
 class Plotting(ReadData):
-    def XZXYslice(self):
+    def XZXYslice(self, param):
 
         # assign necessary data to arrays.
-        data = self.get_3Darray()['data']
-        lim_max = (self.get_3Darray()['max_extents'] * u.cm).to(u.pc)
-        lim_min = (self.get_3Darray()['min_extents'] * u.cm).to(u.pc)
-        sim_time = self.get_3Darray()['sim_time']
-
-        #var1 = var1
+        data = self.get_3Darray(param)['data']
+        lim_max = (self.get_3Darray(param)['max_extents'] * u.cm).to(u.pc)
+        lim_min = (self.get_3Darray(param)['min_extents'] * u.cm).to(u.pc)
+        sim_time = self.get_3Darray(param)['sim_time'].to(u.Myr)
 
         fig = plt.figure()
         gs = gridspec.GridSpec(2, 2, height_ratios=[1, 0.05], width_ratios=[1, 1])
@@ -157,7 +155,7 @@ class Plotting(ReadData):
 
             ax1 = fig.add_subplot(gs[0, 0])
 
-            ax1.set_title('                                                 Time = %5.5f Myr' % sim_time)
+            ax1.set_title('                                                 Time = %5.5f Myr' % sim_time.value)
 
             ax1.set_xlim(lim_min[0][0].value, lim_max[0][0].value)
             ax1.set_ylim(lim_min[0][1].value, lim_max[0][1].value)
@@ -205,5 +203,5 @@ if var1[0] == 'B3D_mag':
 
 #arr = ('files/zeta_10uG_level00_0000.00100000.silo', 'files/zeta_10uG_level01_0000.00100000.silo', 'files/zeta_10uG_level02_0000.00100000.silo')
 
-#a = Plotting(arr, 'Density').plot3Dslice()
+#a = Plotting(arr).XZXYslice('Density')
 #plt.savefig("test.png", bbox_inches='tight', dpi=300)

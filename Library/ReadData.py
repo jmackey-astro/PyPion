@@ -19,8 +19,9 @@
 # - 2018-03-26 SG: Added class to plot slices of the 3D data.
 # - 22-04-2020 SG: Moved the parameter and variable function to SiloHeader_data.py
 # - 22-04-2020 SG: Both functions now open all the files associated with each timestep and saves the data arrays for each of them.
+
 # This is to make the scripts work with nested-grids.
-# Works in 2D and 3D. Should also work with non-nestedgrid too (i.e. 1 level of data).
+# Works in 1D, 2D, and 3D. Should also work with non-nestedgrid too (i.e. 1 level of data).
 
 # -------------- Set of libraries needed:
 import numpy as np
@@ -30,8 +31,6 @@ from SiloHeader_data import OpenData
 
 
 class ReadData(OpenData):
-#    def __init__(self, data):  # This will open the .SILO file and enters the 'header' directory.
-#        self.data = data
 
     def get_1Darray(self, param):
 
@@ -54,7 +53,8 @@ class ReadData(OpenData):
             e = self.parameter(param)
 
             for iD in range(c):
-              x0 = iD * a  # Sets the positions of each process array.
+              # Sets the positions of each process array.
+              x0 = iD * a
               x1 = x0 + a
 
               domain = iD
@@ -83,8 +83,6 @@ class ReadData(OpenData):
 
         i = 0
         for file in self.data:
-            #print(i,file)
-            #opendata = OpenData(file)
             self.open(i)
 
             variable_array = np.zeros((self.ngrid()[1], self.ngrid()[0]))
@@ -97,16 +95,17 @@ class ReadData(OpenData):
 
             for jD in range(d):
                 for iD in range(c):
-                    x0 = iD * a  # Sets the positions of each process array.
+                    # Sets the positions of each process array.
+                    x0 = iD * a
                     y0 = jD * b
                     x1 = x0 + a
                     y1 = y0 + b
 
                     domain = jD * c + iD
-                    variable_array[y0:y1, x0:x1] = e[domain]  # Saves all the values into the 2D image array
+                    # Saves all the values into the 2D image array
+                    variable_array[y0:y1, x0:x1] = e[domain]
                     level_max[i] = self.level_max()
                     level_min[i] = self.level_min()
-            #print(level_min[i],level_max[i])
 
             arr[i] = variable_array
             i += 1
@@ -122,23 +121,17 @@ class ReadData(OpenData):
 
     def get_3Darray(self, param):
 
-        self.open(i)
         level = self.nlevels()
         arr =  [[None]] * level
         level_max = [[None]] * level
         level_min = [[None]] * level
-        sim_time = self.sim_time().value
-
-        self.close()
-        del open
+        sim_time = self.sim_time()
 
         i = 0
         for file in self.data:
             self.open(i)
 
             variable_array = np.zeros((self.ngrid()[2], self.ngrid()[1], self.ngrid()[0]))
-
-            print(file)
 
             a = self.dom_size()['DomSize'][0]
             b = self.dom_size()['DomSize'][1]
@@ -151,7 +144,8 @@ class ReadData(OpenData):
             for kD in range(g):
                 for jD in range(d):
                     for iD in range(c):
-                        x0 = iD * a  # Sets the positions of each process array.
+                        # Sets the positions of each process array.
+                        x0 = iD * a
                         y0 = jD * b
                         z0 = kD * f
                         x1 = x0 + a
@@ -159,7 +153,8 @@ class ReadData(OpenData):
                         z1 = z0 + f
 
                         domain = kD * d * d + jD * c + iD
-                        variable_array[z0:z1, y0:y1, x0:x1] = e[domain]  # Saves all the values into the 2D image array
+                        # Saves all the values into the 3D image array
+                        variable_array[z0:z1, y0:y1, x0:x1] = e[domain]
 
             arr[i] = variable_array
             level_max[i] = self.level_max()
@@ -174,6 +169,5 @@ class ReadData(OpenData):
             del g
             del f
             del variable_array
-            del self
 
         return {'data': arr, 'max_extents': level_max, 'min_extents': level_min, 'sim_time': sim_time}
