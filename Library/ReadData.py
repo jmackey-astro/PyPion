@@ -33,6 +33,46 @@ class ReadData(OpenData):
 #    def __init__(self, data):  # This will open the .SILO file and enters the 'header' directory.
 #        self.data = data
 
+    def get_1Darray(self, param):
+
+        level = self.nlevels()
+        arr =  [[None]] * level
+        level_max = [[None]] * level
+        level_min = [[None]] * level
+        sim_time = self.sim_time().value
+
+        i = 0
+        for file in self.data:
+            #print(i,file)
+            #opendata = OpenData(file)
+            self.open(i)
+
+            variable_array = np.zeros((self.ngrid()[0]))
+
+            a = self.dom_size()['DomSize'][0]
+            c = self.dom_size()['Ndom'][0]
+            e = self.parameter(param)
+
+            for iD in range(c):
+              x0 = iD * a  # Sets the positions of each process array.
+              x1 = x0 + a
+
+              domain = iD
+              # Saves all the values into the 1D image array
+              variable_array[x0:x1] = e[domain]
+              level_max[i] = self.level_max()
+              level_min[i] = self.level_min()
+
+            arr[i] = variable_array
+            i += 1
+
+            del a
+            del c
+            del e
+            del variable_array
+
+        return {'data': arr, 'max_extents': level_max, 'min_extents': level_min, 'sim_time': sim_time}
+
     def get_2Darray(self, param):
 
         level = self.nlevels()
