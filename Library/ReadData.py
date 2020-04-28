@@ -66,7 +66,7 @@ class ReadData(OpenData):
                     variable_array[y0:y1, x0:x1] = e[domain]  # Saves all the values into the 2D image array
                     level_max[i] = self.level_max()
                     level_min[i] = self.level_min()
-            print(level_min[i],level_max[i])
+            #print(level_min[i],level_max[i])
 
             arr[i] = variable_array
             i += 1

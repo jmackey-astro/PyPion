@@ -18,7 +18,7 @@ from astropy import units as u
 
 class OpenData:
     def __init__(self, files):  # This will open the .SILO file and enters the 'header' directory.
-        print(files)
+        #print(files)
         self.data = files
         self.db = Silo.Open(files[0])
         self.db.SetDir('/header')
@@ -27,7 +27,7 @@ class OpenData:
         self.db.Close()
         self.db = Silo.Open(self.data[level])
         self.db.SetDir('/header')
-        print("OPEN",self.level_max())
+        #print("OPEN",self.level_max())
 
     def close(self):  # To close all the variables after use.
         self.db.Close()
@@ -76,7 +76,7 @@ class OpenData:
     def sim_time(self):
         self.db.SetDir('/header')
         simtime = self.db.GetVar("t_sim") * u.second
-        simtime = simtime.to(u.Myr)  # Converts time to Mega-years
+        #simtime = simtime.to(u.Myr)  # Converts time to Mega-years
         return simtime
 
     # ngrid variable contains the size of the grid.
@@ -124,4 +124,4 @@ class OpenData:
 
             variable_data = self.variable(data)
             array_param.append(variable_data)  # Saves the selected data into the empty array.
-        return array_param
+        return np.array(array_param)
