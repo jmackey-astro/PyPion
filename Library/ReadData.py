@@ -32,6 +32,8 @@ from SiloHeader_data import OpenData
 
 class ReadData(OpenData):
 
+    # Function to read 1D data from multiple nested grid levels from
+    # a Silo file, and return the data as numpy arrays with extents.
     def get_1Darray(self, param):
 
         level = self.nlevels()
@@ -42,14 +44,13 @@ class ReadData(OpenData):
 
         i = 0
         for file in self.data:
-            #print(i,file)
-            #opendata = OpenData(file)
             self.open(i)
 
             variable_array = np.zeros((self.ngrid()[0]))
 
-            a = self.dom_size()['DomSize'][0]
-            c = self.dom_size()['Ndom'][0]
+            domain=self.dom_size()
+            a = domain['DomSize'][0]
+            c = domain['Ndom'][0]
             e = self.parameter(param)
 
             for iD in range(c):
@@ -73,6 +74,8 @@ class ReadData(OpenData):
 
         return {'data': arr, 'max_extents': level_max, 'min_extents': level_min, 'sim_time': sim_time}
 
+    # Function to read 2D data from multiple nested grid levels from
+    # a Silo file, and return the data as numpy arrays with extents.
     def get_2Darray(self, param):
 
         level = self.nlevels()
@@ -87,10 +90,11 @@ class ReadData(OpenData):
 
             variable_array = np.zeros((self.ngrid()[1], self.ngrid()[0]))
 
-            a = self.dom_size()['DomSize'][0]
-            b = self.dom_size()['DomSize'][1]
-            c = self.dom_size()['Ndom'][0]
-            d = self.dom_size()['Ndom'][1]
+            domain=self.dom_size()
+            a = domain['DomSize'][0]
+            b = domain['DomSize'][1]
+            c = domain['Ndom'][0]
+            d = domain['Ndom'][1]
             e = self.parameter(param)
 
             for jD in range(d):
@@ -119,6 +123,8 @@ class ReadData(OpenData):
 
         return {'data': arr, 'max_extents': level_max, 'min_extents': level_min, 'sim_time': sim_time}
 
+    # Function to read 3D data from multiple nested grid levels from
+    # a Silo file, and return the data as numpy arrays with extents.
     def get_3Darray(self, param):
 
         level = self.nlevels()
@@ -139,9 +145,7 @@ class ReadData(OpenData):
             c = domain['Ndom'][0]
             d = domain['Ndom'][1]
             g = domain['Ndom'][2]
-            #print("domain",domain)
             e = self.parameter(param)
-            #print("parameter",len(e))
 
             for kD in range(g):
                 for jD in range(d):
@@ -156,7 +160,6 @@ class ReadData(OpenData):
 
                         domain = kD * d * c + jD * c + iD
                         # Saves all the values into the 3D image array
-                        #print(domain,z0,y0,x0)
                         variable_array[z0:z1, y0:y1, x0:x1] = e[domain]
 
             arr[i] = variable_array

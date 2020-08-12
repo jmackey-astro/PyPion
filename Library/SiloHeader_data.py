@@ -122,7 +122,6 @@ class OpenData:
 
     # Retrieves the requested data from the silo file
     def variable(self, par):
-        #print("variable:",par)
         # Saves the selected data as a variable.
         param = self.db.GetVar(par + "_data")
         # Saves the selected data's dimensions.
@@ -132,9 +131,6 @@ class OpenData:
           param_dims = [param_dims]
         else:
           param_dims = param_dims[::-1]
-        #print(param_dims)
-        #param_dims = param_dims[::-1]
-        #print(param_dims)
         # Puts the array into the correct format, i.e. (a,b).
         param = np.array(param).reshape(param_dims)
         return param
