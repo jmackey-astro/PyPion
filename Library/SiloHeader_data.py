@@ -12,6 +12,7 @@
 import Silo
 import numpy as np
 from astropy import units as u
+from os import path as ospath
 
 # -------------- Class to open Silo files and save variables.
 
@@ -23,16 +24,19 @@ class OpenData:
         self.data = files
         self.db = Silo.Open(files[0])
         self.db.SetDir('/header')
+        self.OpenFile = files[0]
 
     # Call this function with a for loop to cycle through each level file.
     def open(self, level):
         self.db.Close()
         self.db = Silo.Open(self.data[level])
         self.db.SetDir('/header')
+        self.OpenFile = self.data[level]
 
     # To close all the variables after use.
     def close(self):
         self.db.Close()
+        self.OpenFile = ""
 
     # Returns the header information:
     def header_info(self):
@@ -118,6 +122,7 @@ class OpenData:
 
     # Retrieves the requested data from the silo file
     def variable(self, par):
+        #print("variable:",par)
         # Saves the selected data as a variable.
         param = self.db.GetVar(par + "_data")
         # Saves the selected data's dimensions.
@@ -125,19 +130,61 @@ class OpenData:
         # Reshapes the dimensions into the correct orientation.
         if (self.ndim()==1):
           param_dims = [param_dims]
-        param_dims = param_dims[::-1]
+        else:
+          param_dims = param_dims[::-1]
+        #print(param_dims)
+        #param_dims = param_dims[::-1]
+        #print(param_dims)
         # Puts the array into the correct format, i.e. (a,b).
         param = np.array(param).reshape(param_dims)
         return param
 
     # Opens up the sub-domains and saves the data specified in "variable".
+    # "data" is a string corresponding to a scalar variable, e.g. "Density"
     def parameter(self, data):
         array_param = []
-        for n in range(self.nproc()):
-            nn = "%04d" % (n,)
-            # Sub-domains are called rank_XXXX_domain_XXXX.
-            self.db.SetDir("/rank_%s_domain_%s/" % (nn, nn))
-
-            variable_data = self.variable(data)
+        self.db.SetDir("/")
+        pp = self.db.GetVar(data+"_varnames")
+        paths = pp.split(";")
+        newfile=""
+        nowfile=""
+        newpar=""
+        origfile=""
+        for n in paths:
+            if n=="":
+              continue # 1st and last elements are empty
+            # if "n" contains a ":" then the domain is in a different file.
+            # We need to close the current file and open another one.
+            loc=n.find(":")
+            if loc != -1:
+              if (newfile==""):
+                origfile=self.OpenFile
+                nowfile=self.OpenFile
+              else:
+                nowfile=newfile
+              # split newfile into filename + location
+              newfile= n[:loc]
+              newpar = n[loc+1:]
+              # append full path to new filename
+              newfile = ospath.dirname(self.OpenFile) + "/" + newfile
+              # only close old / open new file if they are not the same file
+              if (newfile != nowfile):
+                self.db.Close()
+                self.db = Silo.Open(newfile)
+                self.db.SetDir("/")
+                nowfile=newfile
+            else:
+              # nothing do do because domain is in my file.
+              newpar = n
+              nowfile= self.OpenFile
+            #print(nowfile,newpar)
+            d,v = ospath.split(newpar)
+            self.db.SetDir(d)
+            variable_data = self.variable(v)
             array_param.append(variable_data)
+        # re-open original file that was being used for the 1st sub-domain.
+        self.db.Close()
+        self.db = Silo.Open(self.OpenFile)
+        self.db.SetDir("/")
         return np.array(array_param)
+

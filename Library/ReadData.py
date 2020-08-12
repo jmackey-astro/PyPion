@@ -132,14 +132,16 @@ class ReadData(OpenData):
             self.open(i)
 
             variable_array = np.zeros((self.ngrid()[2], self.ngrid()[1], self.ngrid()[0]))
-
-            a = self.dom_size()['DomSize'][0]
-            b = self.dom_size()['DomSize'][1]
-            f = self.dom_size()['DomSize'][2]
-            c = self.dom_size()['Ndom'][0]
-            d = self.dom_size()['Ndom'][1]
-            g = self.dom_size()['Ndom'][2]
+            domain=self.dom_size()
+            a = domain['DomSize'][0]
+            b = domain['DomSize'][1]
+            f = domain['DomSize'][2]
+            c = domain['Ndom'][0]
+            d = domain['Ndom'][1]
+            g = domain['Ndom'][2]
+            #print("domain",domain)
             e = self.parameter(param)
+            #print("parameter",len(e))
 
             for kD in range(g):
                 for jD in range(d):
@@ -152,8 +154,9 @@ class ReadData(OpenData):
                         y1 = y0 + b
                         z1 = z0 + f
 
-                        domain = kD * d * d + jD * c + iD
+                        domain = kD * d * c + jD * c + iD
                         # Saves all the values into the 3D image array
+                        #print(domain,z0,y0,x0)
                         variable_array[z0:z1, y0:y1, x0:x1] = e[domain]
 
             arr[i] = variable_array
