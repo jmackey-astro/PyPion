@@ -61,21 +61,21 @@ plt.rc('font', weight='bold')  # <-------------
 class Plotting2d(ReadData):
     def plotsilo_2d(self, lim_min, lim_max, fig, var1, var2, alpha=1):
         xmin = (self.xmin() * u.cm).to(u.pc)  # Set data to units of parsecs.
-        xmax = self.xmax().to(u.pc)
+        xmax = (self.xmax() * u.cm).to(u.pc)
 
         var1 = var1
         var2 = var2
 
-        level_min = self.level_min().to(u.pc)  # Set data to units of parsecs.
-        level_max = self.level_max().to(u.pc)
+        level_min = (self.level_min() * u.cm).to(u.pc)  # Set data to units of parsecs.
+        level_max = (self.level_max() * u.cm).to(u.pc)
 
         ax1 = fig.add_subplot(2, 1, 1)
         ax1.set_title('      Time = %5.5f Myr' % self.sim_time().value)
 
         if var1[4] == 'log':
-            log_d = np.log10(self.reshaped_parameter2d(var1[0]))
+            log_d = np.log10(self.get_2Darray(var1[0])['data'])
         else:
-            log_d = self.reshaped_parameter2d(var1[0])
+            log_d = self.get_2Darray(var1[0])['data']
 
         ax1.set_xlim(lim_min[0].value, lim_max[0].value)
         ax1.set_ylim(lim_min[1].value, lim_max[1].value)
@@ -95,9 +95,9 @@ class Plotting2d(ReadData):
         ax2 = fig.add_subplot(2, 1, 2)
 
         if var1[4] == 'log':
-            log_t = np.log10(self.reshaped_parameter2d(var2[0]))
+            log_t = np.log10(self.get_2Darray(var2[0])['data'])
         else:
-            log_t = self.reshaped_parameter2d(var2[0])
+            log_t = self.get_2Darray(var2[0])['data']
 
         ax2.set_xlim(lim_min[0].value, lim_max[0].value)
         ax2.set_ylim(-lim_max[1].value, lim_min[1].value)
