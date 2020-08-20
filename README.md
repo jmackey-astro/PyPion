@@ -1,8 +1,6 @@
 # Python Library for PION
 Created - 26|08|2019,
-Modified - 20|08|2020,
-Owner - Samuel Green,
-Email - green@cp.dias.ie
+Modified - 20|08|2020
 
 Welcome to the Python Library that does post-processing on the .Silo simulation data files outputted from PION. The library works on nested-grid and uniform-grid, and 3D and 2D Silo files.
 
@@ -17,6 +15,6 @@ Welcome to the Python Library that does post-processing on the .Silo simulation 
 
 # Developers/Maintainers:
 
-* Samuel Green
+* Samuel Green - green@cp.dias.ie
 * Jonathan Mackey
 
