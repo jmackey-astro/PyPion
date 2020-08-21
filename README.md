@@ -17,3 +17,9 @@ Welcome to the Python Library that does post-processing on the .Silo simulation 
 
 * Samuel Green - green@cp.dias.ie
 * Jonathan Mackey
+
+
+License
+===========
+
+PyPion is distributed under a BSD3 License.  Downloading, using, modifying and/or re-distributing the software implies acceptance of the License.  See [LICENSE.md](https://git.dias.ie/massive-stars-software/pypion/-/blob/master/LICENSE.md).
