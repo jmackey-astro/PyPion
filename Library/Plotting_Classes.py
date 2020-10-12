@@ -59,7 +59,7 @@ plt.rc('font', weight='bold')  # <-------------
 # -------------- Class to plot the data from 2d Silo files.
 
 class Plotting2d(ReadData):
-    def plotsilo_2d(self, lim_min, lim_max, fig, var1, var2, alpha=1):
+    def plotsilo_2d(self, lim_min, lim_max, fig, var1, var2):
         xmin = (self.xmin() * u.cm).to(u.pc)  # Set data to units of parsecs.
         xmax = (self.xmax() * u.cm).to(u.pc)
 
@@ -83,7 +83,7 @@ class Plotting2d(ReadData):
         im1 = ax1.imshow(log_d, interpolation='nearest', cmap=var1[3],
                          extent=[level_min[0].value, level_max[0].value, level_min[1].value,
                                  level_max[1].value],
-                         origin='lower', vmax=var1[1], vmin=var1[2], alpha=alpha)
+                         origin='lower', vmax=var1[1], vmin=var1[2])
         divider1 = make_axes_locatable(ax1)  # Create divider for existing axes instance.
         cax1 = divider1.append_axes("right", size="5%", pad=0.05)  # Append axes to the right of ax1.
         cbar1 = plt.colorbar(im1, cax=cax1, ticks=MultipleLocator(1),
@@ -105,7 +105,7 @@ class Plotting2d(ReadData):
         im2 = ax2.imshow(log_t, interpolation='nearest', cmap=var2[3],
                          extent=[level_min[0].value, level_max[0].value,
                                  -level_max[1].value, -level_min[1].value],
-                         vmax=var2[1], vmin=var2[2], alpha=alpha)
+                         vmax=var2[1], vmin=var2[2])
         divider2 = make_axes_locatable(ax2)
         cax2 = divider2.append_axes("right", size="5%", pad=0.05)
         cbar2 = plt.colorbar(im2, cax=cax2, ticks=MultipleLocator(1), format="%.2f")
@@ -130,6 +130,43 @@ class Plotting2d(ReadData):
 
         return fig
 
+
+    def  plot2d_1(self, param, Fig, var1):
+
+        # assign necessary data to arrays.
+        data = self.get_2Darray(param)['data']
+
+        lim_max = (self.get_2Darray(param)['max_extents'] * u.cm).to(u.pc)
+        lim_min = (self.get_2Darray(param)['min_extents'] * u.cm).to(u.pc)
+        # sim_time = self.get_2Darray(param)['sim_time'].to(u.Myr)
+
+        fig = Fig
+
+        var1 = var1
+
+        for i in range(len(data)):
+            x = data[i]
+            log_data = np.log10(x)
+
+            # --------------Left Plot----------------------------
+
+            ax1 = fig.add_subplot(1,1,1)
+
+            # ax1.set_title('     Time = %5.5f Myr' % sim_time.value)
+
+            ax1.set_xlim(lim_min[0][0].value, lim_max[0][0].value)
+            ax1.set_ylim(lim_min[0][1].value, lim_max[0][1].value)
+
+            im1 = ax1.imshow(log_data, interpolation='nearest', cmap="viridis",
+                            extent=[lim_min[i][0].value, lim_max[i][0].value, lim_min[i][1].value, lim_max[i][1].value], origin='lower', vmax=-22, vmin=-27)
+
+            ax1.set_xlabel('x-axis (pc)')
+            ax1.set_ylabel('y-axis (pc)')
+
+            #cbax = plt.subplot(gs[-1, 0:])
+            #cb = Colorbar(ax=cbax, mappable=im1, orientation='horizontal', ticklocation='bottom')
+
+        return fig
 
 class Plotting3d(ReadData):
     def XZXYslice(self, param, Fig, var1):

@@ -16,6 +16,7 @@ warnings.filterwarnings("ignore", category=matplotlib.cbook.mplDeprecation)
 #-------------------------------
 line = InputValues()
 time_dicts = line.time_dicts
+dimen = line.dimen
 #-------------------------------
 
 for files in time_dicts:
@@ -27,7 +28,18 @@ for files in time_dicts:
 
 	fig = plt.figure()
 
-	a = Plotting3d(arr).XZXYslice(var1[0], fig, var1)
+        if dimen == "2d" or dimen == "2D":
+
+             # print(dimen)
+             a = Plotting2d(arr).plot2d_1(var1[0], fig, var1)
+
+        elif dimen == "3d" or dimen == "3D":
+
+             # print(dimen)
+             a = Plotting3d(arr).XZXYslice(var1[0], fig, var1)
+
+        else:
+             print("Please choose a correct dimenion (1d, 2d, or 3d)")
 
 	imagefile = "%s%s_%s.png" % (line.img_path, line.img_file, time_dicts[files][0][len(time_dicts[files][0]) - 13:len(time_dicts[files][0]) - 6])
 	plt.savefig(imagefile, bbox_inches='tight', dpi=300)
