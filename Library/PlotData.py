@@ -41,6 +41,6 @@ for files in time_dicts:
         else:
              print("Please choose a correct dimenion (1d, 2d, or 3d)")
 
-	imagefile = "%s%s_%s.png" % (line.img_path, line.img_file, time_dicts[files][0][len(time_dicts[files][0]) - 13:len(time_dicts[files][0]) - 6])
+	imagefile = "%s%s_%s.png" % (line.img_path, line.img_file, time_dicts[files][0][len(time_dicts[files][0]) - 13:len(time_dicts[files][0]) - 5])
 	plt.savefig(imagefile, bbox_inches='tight', dpi=300)
 
