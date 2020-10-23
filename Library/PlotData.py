@@ -1,6 +1,6 @@
 # Author: Sam Green, Created: 11-10-20
 
-# Script to call all PyPion classes to plot Silo data.
+# Script to call all PyPion classes to plot 2d + 3d Silo data.
 
 from Plotting_Classes import Plotting2d, Plotting3d
 from argparse_command import InputValues
@@ -11,6 +11,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 #-------------------------------
+# The way I plot 3 arrays onto the same grid throws up a warning.
+# This just surpresses the warning.
 import warnings
 warnings.filterwarnings("ignore", category=matplotlib.cbook.mplDeprecation)
 #-------------------------------
