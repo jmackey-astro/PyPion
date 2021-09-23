@@ -38,7 +38,7 @@ from ReadData import ReadData
 import matplotlib
 # Using this to stop matplotlib from using a $DISPLAY environment variable.
 # i.e. This now works over ssh.
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 from matplotlib.colorbar import Colorbar
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -181,7 +181,7 @@ class Plotting3d(ReadData):
         gs = gridspec.GridSpec(2, 2, height_ratios=[1, 0.05], width_ratios=[1, 1])
         gs.update(left=0.05, right=0.95, bottom=0.08, top=0.93, wspace=0.02, hspace=0.03)
 
-	var = var1
+        var = var1
 
         for i in range(len(data)):
             x_slice = data[i][var[5], :, :]
