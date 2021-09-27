@@ -141,12 +141,14 @@ class OpenData:
         array_param = []
         self.db.SetDir("/")
         pp = self.db.GetVar(data+"_varnames")
-        paths = pp.split(";")
+        #print(pp)
+        #paths = pp.split(",")
         newfile=""
         nowfile=""
         newpar=""
         origfile=""
-        for n in paths:
+        #for n in paths:
+        for n in pp:
             if n=="":
               continue # 1st and last elements are empty
             # if "n" contains a ":" then the domain is in a different file.
