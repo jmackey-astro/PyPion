@@ -21,13 +21,15 @@ class InputValues:
     def __init__(self):
         parser = argparse.ArgumentParser(
             description='Process some values.',
-            usage='script.py <path-to-files> <base-filename> <image-path> <image-filename> <file-type>')
+            usage='script.py <path-to-files> <base-filename> <image-path> <image-filename> <dimension>')
         parser.add_argument('Path', help='path to Silo files')
         parser.add_argument('file_base', help='base filename of silo files')
         parser.add_argument('img_path', help='path to save images into')
         parser.add_argument('img_base', help='base filename of image files')
-        parser.add_argument('file_type', help='file type of image files')
+        parser.add_argument('dimension', help='dimension of data (1d, 2d, 3d)')
         args = parser.parse_args()
+
+        self.dimen = args.dimension
 
         # make sure that path has a trailing /
         file_path = args.Path
@@ -46,14 +48,16 @@ class InputValues:
         # Sort list by timestep
         data_files.sort()
 
+        search = ".silo"
+
         # Remove non-silo files, and non-requested files.
-        search = None
-        if args.file_type == 'silo':
-            search = ".silo"
-        elif args.file_type == 'vtk':
-            search = ".vtk"
-        elif args.file_type == 'fits':
-            search = ".fits"
+        # search = None
+        # if args.file_type == 'silo':
+        #    search = ".silo"
+        # elif args.file_type == 'vtk':
+        #    search = ".vtk"
+        # elif args.file_type == 'fits':
+        #    search = ".fits"
 
         data_files = [f for f in data_files if search in f]
 
