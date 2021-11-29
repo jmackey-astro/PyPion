@@ -133,16 +133,18 @@ class OpenData:
           param_dims = param_dims[::-1]
         # Puts the array into the correct format, i.e. (a,b).
         param = np.array(param).reshape(param_dims)
-        return param
+        # return the data, and the number of dimensions
+        return param, len(param_dims)
 
     # Opens up the sub-domains and saves the data specified in "variable".
     # "data" is a string corresponding to a scalar variable, e.g. "Density"
     def parameter(self, data):
-        array_param = []
+        array_param = []  # data for each sub-domain
+        exten_param = []  # min-extents of each sub-domain
         self.db.SetDir("/")
+        extents = self.db.GetVar("MultiMesh_extents")
+        i = 0  # index in extents
         pp = self.db.GetVar(data+"_varnames")
-        #print(pp)
-        #paths = pp.split(",")
         newfile=""
         nowfile=""
         newpar=""
@@ -177,12 +179,16 @@ class OpenData:
               nowfile= self.OpenFile
             #print(nowfile,newpar)
             d,v = ospath.split(newpar)
+            rank = d[6:10]  # save rank so i can get extents.
             self.db.SetDir(d)
-            variable_data = self.variable(v)
+            variable_data, idim = self.variable(v)
             array_param.append(variable_data)
+            min_extents = extents[i:i+idim]
+            i = i + 2*idim
+            exten_param.append(min_extents)
         # re-open original file that was being used for the 1st sub-domain.
         self.db.Close()
         self.db = Silo.Open(self.OpenFile)
         self.db.SetDir("/")
-        return np.array(array_param)
+        return np.array(array_param), np.array(exten_param)
 

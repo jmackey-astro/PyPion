@@ -95,22 +95,23 @@ class ReadData(OpenData):
             b = domain['DomSize'][1]
             c = domain['Ndom'][0]
             d = domain['Ndom'][1]
-            e = self.parameter(param)
+            e, min_ext = self.parameter(param)
+            level_max[i] = self.level_max()
+            level_min[i] = self.level_min()
+            dx = (level_max[i][0]-level_min[i][0])/c
+            dy = (level_max[i][1]-level_min[i][1])/d
+            ndom = c * d
 
-            for jD in range(d):
-                for iD in range(c):
-                    # Sets the positions of each process array.
-                    x0 = iD * a
-                    y0 = jD * b
-                    x1 = x0 + a
-                    y1 = y0 + b
-
-                    domain = jD * c + iD
-                    # Saves all the values into the 2D image array
-                    variable_array[y0:y1, x0:x1] = e[domain]
-                    level_max[i] = self.level_max()
-                    level_min[i] = self.level_min()
-
+            for idom in range(ndom):
+              # get the (ix,iy,iz) location of sub-domain from its extents
+              ix = int((min_ext[idom][0] - level_min[i][0])*1.01/dx)
+              iy = int((min_ext[idom][1] - level_min[i][1])*1.01/dy)
+              x0 = ix * a
+              y0 = iy * b
+              x1 = x0 + a
+              y1 = y0 + b
+              variable_array[y0:y1, x0:x1] = e[idom]
+              
             arr[i] = variable_array
             i += 1
 
@@ -145,26 +146,28 @@ class ReadData(OpenData):
             c = domain['Ndom'][0]
             d = domain['Ndom'][1]
             g = domain['Ndom'][2]
-            e = self.parameter(param)
-
-            for kD in range(g):
-                for jD in range(d):
-                    for iD in range(c):
-                        # Sets the positions of each process array.
-                        x0 = iD * a
-                        y0 = jD * b
-                        z0 = kD * f
-                        x1 = x0 + a
-                        y1 = y0 + b
-                        z1 = z0 + f
-
-                        domain = kD * d * c + jD * c + iD
-                        # Saves all the values into the 3D image array
-                        variable_array[z0:z1, y0:y1, x0:x1] = e[domain]
-
-            arr[i] = variable_array
+            e, min_ext = self.parameter(param)
             level_max[i] = self.level_max()
             level_min[i] = self.level_min()
+            dx = (level_max[i][0]-level_min[i][0])/c
+            dy = (level_max[i][1]-level_min[i][1])/d
+            dz = (level_max[i][2]-level_min[i][2])/g
+            ndom = c * d * g
+
+            for idom in range(ndom):
+              # get the (ix,iy,iz) location of sub-domain from its extents
+              ix = int((min_ext[idom][0] - level_min[i][0])*1.01/dx)
+              iy = int((min_ext[idom][1] - level_min[i][1])*1.01/dy)
+              iz = int((min_ext[idom][2] - level_min[i][2])*1.01/dz)
+              x0 = ix * a
+              y0 = iy * b
+              z0 = iz * f
+              x1 = x0 + a
+              y1 = y0 + b
+              z1 = z0 + f
+              variable_array[z0:z1, y0:y1, x0:x1] = e[idom]
+              
+            arr[i] = variable_array
             i += 1
 
             del a
