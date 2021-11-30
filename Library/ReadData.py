@@ -51,18 +51,18 @@ class ReadData(OpenData):
             domain=self.dom_size()
             a = domain['DomSize'][0]
             c = domain['Ndom'][0]
-            e = self.parameter(param)
+            e, min_ext = self.parameter(param)
+            level_max[i] = self.level_max()
+            level_min[i] = self.level_min()
+            dx = (level_max[i][0]-level_min[i][0])/c
 
-            for iD in range(c):
+            for idom in range(c):
               # Sets the positions of each process array.
-              x0 = iD * a
+              ix = int((min_ext[idom][0] - level_min[i][0])*1.01/dx)
+              x0 = ix * a
               x1 = x0 + a
-
-              domain = iD
               # Saves all the values into the 1D image array
-              variable_array[x0:x1] = e[domain]
-              level_max[i] = self.level_max()
-              level_min[i] = self.level_min()
+              variable_array[x0:x1] = e[idom]
 
             arr[i] = variable_array
             i += 1
