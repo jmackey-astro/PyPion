@@ -73,7 +73,7 @@ class Plotting3d(ReadData):
 
         # This variable specifies the speration between streamlines.
         # the bigger the number, the more streamlines on the plot, vice versa.
-        sep = (Xmax - Xmin) / 80
+        sep = (Xmax - Xmin) / ngrid[0]
         
         # Select slice in X-Y plane from data for streamlines.
         vel = np.array(vel_3d[lev][grid, :, :])*1.0e-5
