@@ -49,7 +49,7 @@ class Plotting3d(ReadData):
         ngrid = self.ngrid()
         # Here you specify what slice from the 3d data you want to use.
         # I.e. if you have a 256^3 sim and you want the middle slice then you use 128.
-        grid = 40
+        grid = ngrid[0]/2
         
         # Calculate the velnitude of the 3D data.
         vel_3d = np.sqrt(np.square(velx) + np.square(vely) + np.square(velz))
