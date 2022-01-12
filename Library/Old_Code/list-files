@@ -1,0 +1,148 @@
+#!/bin/bash
+
+# Author: Sam Green, Created: 04-09-19
+# Bash script to loop through all the data files and pass into a python script to create plots of all the variabes.
+# This code has been mainly created to 'fix' the python memory leak problem.
+
+# Comments:
+# -2019/09/04 SG: Works in serial pretty well.
+# -2019/10/2 SG: Fixed file counter, fixed trailing / on path names, now also asks if you want to continue.
+
+
+shopt -s nullglob
+
+printf "\n############################# PION_Python ###############################"
+printf "\nThis bash script runs the pion_python code to save fig of the data.\n"
+printf "\nPython2.7 is used, please make sure all python modules are installed for this version of python (does not work in Python3.+, yet)\n"
+
+printf "\nThe folder where you are going to save the figures must exist before running this script.\n"
+
+printf "#########################################################################\n"
+
+if [ -z "$1" ];
+then
+	echo "***There are no input arguments***"
+	echo "***How to use:   bash list-files file_location image_destination***"
+	exit 1
+fi
+
+for FILE1 in "$@"
+do
+	if [ ! -d "$FILE1" ];
+	then
+		echo $FILE1 ": This is not a directory!"
+	#else
+		#echo $FILE1
+	fi
+
+	if [ -z "$2" ];
+	then
+		echo "***There is not enough input arguments***"
+		echo "***How to use:   bash list-files file_location image_destination***"
+		exit 1
+	fi
+done
+
+
+
+DEST=$1
+if [[ $DEST = */ ]]
+then
+	echo ""
+else
+	DEST=$DEST/
+fi
+IMAG=$2
+if [[ $IMAG = */ ]]
+then
+	echo ""
+else
+	IMAG=$IMAG/
+fi
+
+LEVELZ=$DEST*level00*
+LEV=($DEST*level00*)
+
+COUNTER=0
+
+printf "\nDo you wish to continue? (y/N)\n"
+read -p '....: ' str3
+
+if [[ "$str3" == "N" ]];
+#if [ "$str1" == "s" ] && [ "$str1" == "serial"];
+then
+	echo '....Stopping script....'
+	exit 1
+elif [[ "$str3" == "y" ]];
+then
+  echo '....Running script....'
+else
+	echo '....Stopping script, please type y or N....'
+	exit 1
+fi
+
+printf "\nAre you analysing 2D or 3D data files? (type 2 or 3)\n"
+read -p '....: ' str2
+
+printf "\nDo you wish to run this script in Serial or Parallel? (type s or p)\n"
+read -p '....: ' str1
+
+if [[ "$str2" == "3" ]];
+then
+
+if [[ "$str1" == "s" ]];
+#if [ "$str1" == "s" ] && [ "$str1" == "serial"];
+then
+	echo '....Running python script in serial....'
+	for file in $LEVELZ
+	do
+
+		python Library/plot_nestedgrid_3dslice.py $IMAG $DEST*${file:${#file}-13}
+		COUNTER=$[COUNTER + 1]
+		echo $COUNTER "of" "${#LEV[@]}" "files analysed and saved"
+
+	done
+
+elif [[ "$str1" == "p" ]];
+then
+	echo '....Running python script in parallel....'
+	echo 'This actually does not work yet... but it will soon!'
+	#parallel -a "python Library/plot_nestedgrid_3dslice.py $IMAG $DEST*${file:${#file}-13}" ::: "$LEVELZ"
+	#LEV=$DEST*${LEVELZ:${#LEVELZ}-13}
+	#parallel -verbose python Library/plot_nestedgrid_3dslice.py ::: "$IMAG" ::: "$LEV"
+	#ls $LEVELZ | parallel 'python Library/plot_nestedgrid_3dslice.py $IMAG {}'
+
+else
+	echo 'Please type s or p'
+fi
+
+elif [[ "$str2" == "2" ]];
+then
+
+if [[ "$str1" == "s" ]];
+#if [ "$str1" == "s" ] && [ "$str1" == "serial"];
+then
+	echo '....Running python script in serial....'
+	for file in $LEVELZ
+	do
+
+		python Library/plot_nestedgrid.py $IMAG $DEST*${file:${#file}-13}
+		COUNTER=$[COUNTER + 1]
+		echo $COUNTER "of" ${#LEV[@]} "files analysed and saved"
+
+	done
+
+elif [[ "$str1" == "p" ]];
+then
+	echo '....Running python script in parallel....'
+	echo 'This actually does not work yet... but it will soon!'
+	#parallel -a "python Library/plot_nestedgrid_3dslice.py $IMAG $DEST*${file:${#file}-13}" ::: "$LEVELZ"
+	#LEV=$DEST*${LEVELZ:${#LEVELZ}-13}
+	#parallel -verbose python Library/plot_nestedgrid_3dslice.py ::: "$IMAG" ::: "$LEV"
+	#ls $LEVELZ | parallel 'python Library/plot_nestedgrid_3dslice.py $IMAG {}'
+
+else
+	echo 'Please type s or p'
+fi
+
+fi
