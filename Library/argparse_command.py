@@ -64,6 +64,18 @@ class InputValues:
         search = args.file_base
         data_files = [f for f in data_files if search in f]
 
+        # Want to include only the primary data files, with "_0000.*.silo"
+        #print(len(data_files))
+        search = "_0001."
+        data_files = [f for f in data_files if search not in f]
+        search = "_0002."
+        data_files = [f for f in data_files if search not in f]
+        search = "_0003."
+        data_files = [f for f in data_files if search not in f]
+        search = "_0004."
+        data_files = [f for f in data_files if search not in f]
+        #print(len(data_files))
+
         # Add path to files
         self.data_files_with_path = [f.replace(f, file_path+f) for f in data_files]
 

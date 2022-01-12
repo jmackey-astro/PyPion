@@ -2,9 +2,11 @@
 
 # Script to call all PyPion classes to plot Silo data.
 import sys
-sys.path.insert(0,"/mnt/massive-stars/share/pypion/silo/lib")
+#sys.path.insert(0,"/mnt/massive-stars/share/pypion/silo/lib")
+#sys.path.insert(0,"/mnt/massive-stars/share/pypion/Library")
+sys.path.insert(0,"/home/jmackey/code/pypion/silo/lib")
+sys.path.insert(0,"/home/jmackey/code/pypion/Library")
 import Silo
-sys.path.insert(0,"/mnt/massive-stars/share/pypion/Library")
 
 from Plotting_Classes import Plotting2d, Plotting3d
 from argparse_command import InputValues
