@@ -24,10 +24,10 @@ time_dicts = line.time_dicts
 dimen = line.dimen
 #-------------------------------
 
+i=0
 for files in time_dicts:
-
      arr = time_dicts[files]
-     print(arr)
+     print("iteration: ",i," : files: ",arr)
 
      var1 = ["Density", -22.1, -27, "viridis", 'y', 127]
      #var1 = ["Temperature", 8, 2, "inferno", 'y', 63]
@@ -51,4 +51,5 @@ for files in time_dicts:
      plt.close(fig)
      del fig
      del a
+     i = i+1
 

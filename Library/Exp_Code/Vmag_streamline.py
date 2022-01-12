@@ -49,7 +49,8 @@ class Plotting3d(ReadData):
         ngrid = self.ngrid()
         # Here you specify what slice from the 3d data you want to use.
         # I.e. if you have a 256^3 sim and you want the middle slice then you use 128.
-        grid = ngrid[0]/2
+        grid = int(ngrid[0]/2)
+        #print(grid)
         
         # Calculate the velnitude of the 3D data.
         vel_3d = np.sqrt(np.square(velx) + np.square(vely) + np.square(velz))
@@ -68,7 +69,7 @@ class Plotting3d(ReadData):
         Ymax = lim_max[lev][1].value
         Xmin = lim_min[lev][0].value
         Ymin = lim_min[lev][1].value
-        print(Xmin,Xmax,Ymin,Ymax)
+        #print(Xmin,Xmax,Ymin,Ymax)
 
         # This variable specifies the speration between streamlines.
         # the bigger the number, the more streamlines on the plot, vice versa.
