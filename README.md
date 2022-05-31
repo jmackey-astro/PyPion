@@ -16,7 +16,7 @@ In some cases you may need to use `sudo` or install pip with: `sudo apt install 
 
 # Install Silo package for python3:
 
-The install script for SIlo can be found at /src/silo/ in this repository. Please download it to ~/.silo/ on your computer and install it there using `bash install_silo.sh` 
+The install script for SIlo can be found at /src/silo/ in this repository. Please download it to ~/.local/silo on your computer and install it there using `bash install_silo.sh` 
 
 # Info on how to get started
 
