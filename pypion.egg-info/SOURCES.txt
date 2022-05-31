@@ -1,0 +1,9 @@
+LICENSE.md
+README.md
+pyproject.toml
+setup.py
+pypion.egg-info/PKG-INFO
+pypion.egg-info/SOURCES.txt
+pypion.egg-info/dependency_links.txt
+pypion.egg-info/requires.txt
+pypion.egg-info/top_level.txt

@@ -33,7 +33,7 @@
 
 #############################################################
 # -------------- Set of libraries needed:
-from ReadData import ReadData
+from .ReadData import ReadData
 
 import matplotlib
 # Using this to stop matplotlib from using a $DISPLAY environment variable.
@@ -230,19 +230,3 @@ class Plotting3d(ReadData):
 
         return fig
 
-'''
-if var1[0] == 'B3D_mag':
-    magx = self.get_3Darray('MagneticFieldX')
-    magy = self.get_3Darray('MagneticFieldY')
-    magz = self.get_3Darray('MagneticFieldZ')
-
-    mag = np.sqrt((magx ** 2) + (magy ** 2) + (magz ** 2))
-
-    log_dx = np.log10(mag[var1[6], :, :])
-    log_dy = np.log10(mag[:, var1[6], :])
-'''
-
-#arr = ('files/zeta_10uG_level00_0000.00100000.silo', 'files/zeta_10uG_level01_0000.00100000.silo', 'files/zeta_10uG_level02_0000.00100000.silo')
-
-#a = Plotting(arr).XZXYslice('Density')
-#plt.savefig("test.png", bbox_inches='tight', dpi=300)

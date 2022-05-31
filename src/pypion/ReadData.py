@@ -25,7 +25,7 @@
 
 # -------------- Set of libraries needed:
 import numpy as np
-from SiloHeader_data import OpenData
+from .SiloHeader_data import OpenData
 
 # --------------Class to access each 2D sub-domain and save density, temperature, etc. data:
 

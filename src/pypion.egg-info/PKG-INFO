@@ -1,22 +1,23 @@
+Metadata-Version: 2.1
+Name: pypion
+Version: 1.0.3
+Summary: Python package to open Silo data files from PION
+Home-page: https://git.dias.ie/massive-stars-software/pypion
+Author: Sam Green
+Author-email: green@cp.dias.ie
+Project-URL: Bug Tracker, https://git.dias.ie/massive-stars-software/pypion/-/boards
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+
 # Python Library for PION
 Created - 26|08|2019,
-Modified - 28|03|2022
+Modified - 20|08|2020
 
 Welcome to the Python Library that does post-processing on the .Silo simulation data files outputted from PION. The library works on nested-grid and uniform-grid, and 3D and 2D Silo files.
-
-# Install via pip:
-
-You can now install PyPion via PyPi:
-
-* Just run `python3 -m pip install pypion`
-
-In some cases you may need to use `sudo` or install pip with: `sudo apt install python3-pip`
-
-*Note: This is still in testing phase so errors may occur when installing. Please report problems to green@cp.dias.ie
-
-# Install Silo package for python3:
-
-The install script for SIlo can be found at /src/silo/ in this repository. Please download it to ~/.silo/ on your computer and install it there using `bash install_silo.sh` 
 
 # Info on how to get started
 

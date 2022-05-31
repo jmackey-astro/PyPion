@@ -1,0 +1,17 @@
+LICENSE.md
+README.md
+pyproject.toml
+setup.cfg
+setup.py
+src/pypion/PlotData.py
+src/pypion/Plotting_Classes.py
+src/pypion/ReadData.py
+src/pypion/SiloHeader_data.py
+src/pypion/__init__.py
+src/pypion/argparse_command.py
+src/pypion.egg-info/PKG-INFO
+src/pypion.egg-info/SOURCES.txt
+src/pypion.egg-info/dependency_links.txt
+src/pypion.egg-info/requires.txt
+src/pypion.egg-info/top_level.txt
+src/silo/install_silo.sh

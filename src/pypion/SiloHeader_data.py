@@ -9,7 +9,14 @@
 # - 22-04-2020 SG: Removed hard-coded cm in xmax and xmin.
 
 # -------------- Set of libraries needed:
-import Silo
+import sys
+
+# Point to silo installation folder.
+# I recommend installed silo here at ~/.silo/
+sys.path.insert(0,"~/.local/silo/")
+
+#sys.path.insert(0,"/home/pion_python/Library")
+
 import numpy as np
 from astropy import units as u
 from os import path as ospath
