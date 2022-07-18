@@ -32,11 +32,11 @@ for files in time_dicts:
 
 	fig = plt.figure()
 
-	# To plot 2D data use the following line to plot the data:
+        # To plot 2D data use the following line to plot the data:
 	#a = Plotting2d(arr).plotsilo_2d(var1[0], fig, var1)
 	
 	# To plot 3D data use the following line to plot the data:
-	a = Plotting3d(arr).XZXYslice(var1[0], fig, var1)
+        a = Plotting3d(arr).XZXYslice(var1[0], fig, var1)
 
 	imagefile = "%s%s_%s.png" % (line.img_path, line.img_file, time_dicts[files][0][len(time_dicts[files][0]) - 13:len(time_dicts[files][0]) - 5])
 	plt.savefig(imagefile, bbox_inches='tight', dpi=300)
