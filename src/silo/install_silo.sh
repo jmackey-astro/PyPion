@@ -43,8 +43,8 @@ esac
 
 DDD=`uname -a | grep "Darwin"`
 if [ ! -z "$DDD" ]; then
-  export CXX=g++
-  export CC=gcc
+  export CXX=g++-11
+  export CC=gcc-11
   echo "***** COMPILING WITH OS-X: host ${HOST}: COMPILERS ARE $CC $CXX "  
   MAKE_UNAME=OSX
   #NCORES=1
@@ -69,7 +69,7 @@ then
 # Change these for new versions:
 #  FILE=silo-4.10.2-bsd.tgz
 #  SRC_DIR=silo-4.10.2-bsd
-  REMOTE_URL=https://github.com/markcmiller86/silo-issues/releases/download/v4.11/silo-4.11-bsd-smalltest.tar.gz
+  REMOTE_URL=https://github.com/LLNL/Silo/releases/download/v4.11/silo-4.11-bsd-smalltest.tar.gz
   FILE=silo-4.11-bsd-smalltest.tar.gz
   SRC_DIR=silo-4.11-bsd
 #################################
@@ -84,9 +84,9 @@ then
           echo "********************************"
           $WGET --no-check-certificate $REMOTE_URL -O $FILE
           if [ $? != 0 ]; then
-            echo ** failed to download with wget, trying curl instead **
+            echo "** failed to download with wget, trying curl instead **"
             rm $FILE
-            curl $REMOTE_URL -o $FILE
+            curl --location --remote-name $REMOTE_URL -o $FILE
           fi
           # check it downloaded.
           if [ ! -f $FILE ]; then
@@ -103,6 +103,8 @@ then
 #echo "*** RUNNING CONFIGURE ***"
 #echo "********************************"
   BASE_PATH=`pwd`
+  mkdir -p ${HOME}/.local/
+  mkdir -p ${HOME}/.local/silo
   echo "***Path = $BASE_PATH ***"
   cd $SRC_DIR
   make clean
@@ -110,13 +112,13 @@ then
 
   if [[ MAKE_UNAME="OSX" ]]
     then
-    ./configure --prefix=${BASE_PATH} \
+    ./configure --prefix=$HOME/.local/silo \
       --disable-browser \
       --disable-fortran \
       --disable-silex --disable-fpzip \
       --enable-pythonmodule --enable-shared
   else
-    ./configure --prefix=${BASE_PATH} \
+    ./configure --prefix=$HOME/.local/silo \
       --enable-browser \
       --disable-fortran \
       --enable-silex \
