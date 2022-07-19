@@ -117,17 +117,6 @@ class Plotting2d(ReadData):
 
         del xmin
         del xmax
-        # del var1
-        # del var2
-        # del level_min
-        # del level_max
-        # del log_d
-        # del log_t
-        # del im1
-        # del im2
-        # self.db.close()
-        # del self.db
-
         return fig
 
 
@@ -141,31 +130,23 @@ class Plotting2d(ReadData):
         # sim_time = self.get_2Darray(param)['sim_time'].to(u.Myr)
 
         fig = Fig
-
-        var1 = var1
+        ax1 = fig.add_subplot(1,1,1)
+        ax1.set_xlim(lim_min[0][0].value, lim_max[0][0].value)
+        ax1.set_ylim(lim_min[0][1].value, lim_max[0][1].value)
+        ax1.set_xlabel('x-axis (pc)')
+        ax1.set_ylabel('y-axis (pc)')
 
         for i in range(len(data)):
             x = data[i]
             log_data = np.log10(x)
 
             # --------------Left Plot----------------------------
-
-            ax1 = fig.add_subplot(1,1,1)
-
             # ax1.set_title('     Time = %5.5f Myr' % sim_time.value)
-
-            ax1.set_xlim(lim_min[0][0].value, lim_max[0][0].value)
-            ax1.set_ylim(lim_min[0][1].value, lim_max[0][1].value)
-
             im1 = ax1.imshow(log_data, interpolation='nearest', cmap="viridis",
                             extent=[lim_min[i][0].value, lim_max[i][0].value, lim_min[i][1].value, lim_max[i][1].value], origin='lower', vmax=-22, vmin=-27)
 
-            ax1.set_xlabel('x-axis (pc)')
-            ax1.set_ylabel('y-axis (pc)')
-
-            #cbax = plt.subplot(gs[-1, 0:])
-            #cb = Colorbar(ax=cbax, mappable=im1, orientation='horizontal', ticklocation='bottom')
-
+        #cbax = plt.subplot(gs[-1, 0:])
+        #cb = Colorbar(ax=cbax, mappable=im1, orientation='horizontal', ticklocation='bottom')
         return fig
 
 class Plotting3d(ReadData):
@@ -183,6 +164,21 @@ class Plotting3d(ReadData):
 
         var = var1
 
+        ax1 = fig.add_subplot(gs[0, 0])
+        ax1.set_title('                                                 Time = %5.5f Myr' % sim_time.value)
+        ax1.set_xlim(lim_min[0][0].value, lim_max[0][0].value)
+        ax1.set_ylim(lim_min[0][1].value, lim_max[0][1].value)
+        ax1.set_xlabel('x-axis (pc)')
+        ax1.set_ylabel('z-axis (pc)')
+        ax2 = fig.add_subplot(gs[0, 1])
+        # ax2.set_title('Time = %5.5f Myr' % self.sim_time().value)
+        ax2.set_xlim(lim_min[0][0].value, lim_max[0][0].value)
+        ax2.set_ylim(lim_min[0][2].value, lim_max[0][2].value)
+        ax2.set_xlabel('x-axis (pc)')
+        ax2.yaxis.set_label_position("right")
+        ax2.yaxis.tick_right()
+        ax2.set_ylabel('y-axis (pc)')
+
         for i in range(len(data)):
             x_slice = data[i][var[5], :, :]
             y_slice = data[i][:, var[5], :]
@@ -191,42 +187,19 @@ class Plotting3d(ReadData):
             log_dy = np.log10(y_slice)
 
             # --------------Left Plot----------------------------
-
-            ax1 = fig.add_subplot(gs[0, 0])
-
-            ax1.set_title('                                                 Time = %5.5f Myr' % sim_time.value)
-
-            ax1.set_xlim(lim_min[0][0].value, lim_max[0][0].value)
-            ax1.set_ylim(lim_min[0][1].value, lim_max[0][1].value)
-
             im1 = ax1.imshow(log_dy, interpolation='nearest', cmap="viridis",
                             extent=[lim_min[i][0].value, lim_max[i][0].value, lim_min[i][1].value, lim_max[i][1].value],
                             origin='lower', vmax=-22, vmin=-27)
             # txt1 = ax1.text(0.8, 0.92, r'$log(\rho)$', transform=ax1.transAxes)
-            ax1.set_xlabel('x-axis (pc)')
-            ax1.set_ylabel('z-axis (pc)')
-
             # --------------Right Plot----------------------------
-            ax2 = fig.add_subplot(gs[0, 1])
-            # ax2.set_title('Time = %5.5f Myr' % self.sim_time().value)
-
-            ax2.set_xlim(lim_min[0][0].value, lim_max[0][0].value)
-            ax2.set_ylim(lim_min[0][2].value, lim_max[0][2].value)
-
             im2 = ax2.imshow(log_dx, interpolation='nearest', cmap=var[3],
                             extent=[lim_min[i][0].value, lim_max[i][0].value, lim_min[i][2].value, lim_max[i][2].value],
                             origin='lower', vmax=var[1], vmin=var[2])
             # txt2 = ax2.text(0.8, 0.92, r'$log(\rho)$', transform=ax1.transAxes)
-            ax2.set_xlabel('x-axis (pc)')
-            ax2.yaxis.set_label_position("right")
-            ax2.yaxis.tick_right()
-            ax2.set_ylabel('y-axis (pc)')
 
             cbax = plt.subplot(gs[-1, 0:])
             cb = Colorbar(ax=cbax, mappable=im1, orientation='horizontal', ticklocation='bottom')
             # cb.set_label(r'Colorbar !', labelpad=10)
-
         #plt.savefig("test.png", bbox_inches='tight', dpi=300)
-
         return fig
 

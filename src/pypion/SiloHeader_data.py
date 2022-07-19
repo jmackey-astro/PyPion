@@ -12,10 +12,11 @@
 import sys
 
 # Point to silo installation folder.
-# I recommend installed silo here at ~/.silo/
-sys.path.insert(0,"~/.local/silo/")
-
-#sys.path.insert(0,"/home/pion_python/Library")
+# I recommend installed silo here at ~/.local/silo/
+from pathlib import Path
+home = str(Path.home())
+sys.path.insert(0,home+"/.local/silo/")
+import Silo
 
 import numpy as np
 from astropy import units as u
