@@ -3,6 +3,10 @@
 # Authors: Jonathan Mackey, Harpreet Dhanoa, others?
 #
 # - 2012-2020: ongoing development to add options for new machines.
+# - 2023.10.03 JM: updates for new MacOS
+# 
+# MacOS: use homebrew, and install:
+# brew install readline python3 numpy scipy gcc git 
 # 
 
 mkdir include
@@ -43,8 +47,9 @@ esac
 
 DDD=`uname -a | grep "Darwin"`
 if [ ! -z "$DDD" ]; then
-  export CXX=g++-11
-  export CC=gcc-11
+  #export CXX=/usr/local/bin/g++-13
+  #export CC=/usr/local/bin/gcc-13
+  #export FC=/usr/local/bin/gfortran-13
   echo "***** COMPILING WITH OS-X: host ${HOST}: COMPILERS ARE $CC $CXX "  
   MAKE_UNAME=OSX
   #NCORES=1
@@ -69,9 +74,10 @@ then
 # Change these for new versions:
 #  FILE=silo-4.10.2-bsd.tgz
 #  SRC_DIR=silo-4.10.2-bsd
-  REMOTE_URL=https://github.com/LLNL/Silo/releases/download/v4.11/silo-4.11-bsd-smalltest.tar.gz
-  FILE=silo-4.11-bsd-smalltest.tar.gz
-  SRC_DIR=silo-4.11-bsd
+  VER=4.11.1
+  REMOTE_URL=https://github.com/LLNL/Silo/releases/download/${VER}/silo-${VER}-bsd-smalltest.tar.xz
+  FILE=silo-${VER}-bsd-smalltest.tar.xz
+  SRC_DIR=silo-${VER}-bsd
 #################################
 
 
@@ -108,12 +114,11 @@ then
   echo "***Path = $BASE_PATH ***"
   cd $SRC_DIR
   make clean
-  sed -i -e "s/print distutils.sysconfig.get_python_inc()/print(distutils.sysconfig.get_python_inc())/" configure
 
   if [[ MAKE_UNAME="OSX" ]]
     then
     ./configure --prefix=$HOME/.local/silo \
-      --disable-browser \
+      --enable-browser --with-readline=no \
       --disable-fortran \
       --disable-silex --disable-fpzip \
       --enable-pythonmodule --enable-shared
