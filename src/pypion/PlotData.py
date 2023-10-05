@@ -11,11 +11,6 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 #-------------------------------
-# The way I plot 3 arrays onto the same grid throws up a warning.
-# This just surpresses the warning.
-import warnings
-warnings.filterwarnings("ignore", category=matplotlib.cbook.mplDeprecation)
-#-------------------------------
 line = InputValues()
 time_dicts = line.time_dicts
 dimen = line.dimen
