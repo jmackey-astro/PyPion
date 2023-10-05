@@ -49,9 +49,6 @@ import matplotlib.gridspec as gridspec
 import numpy as np
 from astropy import units as u
 
-import warnings
-warnings.filterwarnings("ignore", category=matplotlib.cbook.mplDeprecation)
-
 plt.rc('font', **{'size': 12})
 # plt.rc('lines', linewidth=2)
 plt.rc('font', weight='bold')  # <-------------

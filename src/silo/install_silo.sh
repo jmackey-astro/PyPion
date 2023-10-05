@@ -54,7 +54,7 @@ if [ ! -z "$DDD" ]; then
   MAKE_UNAME=OSX
   #NCORES=1
   path=`pwd`
-  export PYTHON=/usr/local/bin/python3
+  export PYTHON=`which python3`
 fi
 
 
