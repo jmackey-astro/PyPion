@@ -115,7 +115,7 @@ then
   cd $SRC_DIR
   make clean
 
-  if [[ MAKE_UNAME="OSX" ]]
+  if [[ MAKE_UNAME == "OSX" ]]
     then
     ./configure --prefix=$HOME/.local/silo \
       --enable-browser --with-readline=no \
