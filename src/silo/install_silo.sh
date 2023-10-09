@@ -104,7 +104,7 @@ then
 #echo "********************************"
 #echo "*** EXTRACTING SILO LIBRARY ***"
 #echo "********************************"
-  tar zxf $FILE
+  tar --xz -xf $FILE
 #echo "********************************"
 #echo "*** RUNNING CONFIGURE ***"
 #echo "********************************"
