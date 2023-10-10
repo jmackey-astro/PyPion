@@ -126,7 +126,7 @@ then
     ./configure --prefix=$HOME/.local/silo \
       --enable-browser \
       --disable-fortran \
-      --enable-silex \
+      --disable-silex \
       --enable-pythonmodule --enable-shared
   fi
 
