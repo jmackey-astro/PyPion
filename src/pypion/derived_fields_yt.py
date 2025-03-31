@@ -2,7 +2,7 @@
 import sys
 sys.path.insert(0,"~/.local/silo/lib")
 
-from ReadData import ReadData
+from .ReadData import ReadData
 
 import numpy as np
 import math

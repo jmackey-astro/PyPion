@@ -1,12 +1,10 @@
-from silo_to_yt import *
-from read_torus_fits import *
 import sys
-import pickle
+import os
 import matplotlib.pyplot as plt
 import astropy.units as u
 import numpy as np
-import pandas as pd
-import sigfig
+from .pion2yt import pion2yt
+import yt
 from yt.visualization.volume_rendering.api import PointSource
 yt.set_log_level("ERROR")
 #print(plt.style.available)
@@ -23,12 +21,14 @@ home = str(pathlib.Path.home())
 from datetime import datetime
 
 
-class YTPlotFunction():
+class YTPlotFunction(pion2yt):
 
     # Constructor
     def __init__(self, data_path, file_base, img_dir, sim_name, quantities=["density"]):
 
-        self.evolution = make_snapshots(data_path, file_base) # list of all snapshots
+        #self.p2y = pion2yt
+
+        self.evolution = self.make_snapshots(data_path, file_base) # list of all snapshots
         self.data_path = data_path # path to data
         self.file_base = file_base # base of filename
         self.img_dir = img_dir # path to save images
@@ -153,18 +153,18 @@ class YTPlotFunction():
     ###########################################################################
     def plot_smr_plot(self, i):
         print(f"Loading dataset: Sim Snapshot {i}")
-        ds = get_ds(self.evolution[i], quantities=["windtracer"], start_time=self.start_time)
+        ds = self.get_ds(self.evolution[i], quantities=["windtracer0"])
         time = ds.current_time.value
         print(time)
         print(f"Successfully Loaded dataset: {str(ds)}")
         print(f"Plotting SMR for snapshot {i}...")
-        slc = yt.SlicePlot(ds, "z", "windtracer")
+        slc = yt.SlicePlot(ds, "z", "windtracer0")
        
         slc.set_cmap("windtracer", "gray")
         slc.set_figure_size(5)
         slc.zoom(2)
-        slc.set_log("windtracer", False)
-        slc.set_zlim("windtracer", -10, 0)
+        slc.set_log("windtracer0", False)
+        slc.set_zlim("windtracer0", -10, 0)
         slc.annotate_grids(linewidth=1, edgecolors="black")
         slc.annotate_cell_edges(line_width=0.00001, alpha=0.5, color="black")
         # slc.set_font({"family": "times new roman"})
@@ -628,102 +628,6 @@ class YTPlotFunction():
         
         num = str(i).zfill(5)
         fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_Proj_Xray003_{num}.png"), dpi=300, bbox_inches="tight")
-        plt.close(fig)
-
-    ###########################################################################
-    def plot_Xray_IR(self, i, irpath):
-        print(f"Loading dataset: Sim Snapshot {i}")
-        ds = get_ds(self.evolution[i], quantities=["xray_emission"])
-        time = (ds.current_time.to("Myr"))
-        print(time)
-        print(f"Successfully Loaded dataset: {str(ds)}")
-        print(f"Plotting X-ray + IR for snapshot {i}...")
-        
-        fig = plt.figure()
-        grid = ImageGrid(fig, (0.075,0.075,0.85,0.85),
-                nrows_ncols = (1, 2),
-                axes_pad = 0.075,
-                label_mode = "all",
-                share_all = True,
-                cbar_mode="single",
-                cbar_location="right",
-                cbar_size="7%",
-                cbar_pad="28%")
-
-
-        # first plot: XZ plane, on the left
-        prj1 = yt.ProjectionPlot( ds, "y", ("gas", "xray_0.3"),  width=(4.5, "pc"), origin="native", method="integrate", buff_size=(1024, 1024))
-        prj1.swap_axes()
-        prj1.set_cmap("xray_0.3", "magma")
-        prj1.set_zlim(("gas", "xray_0.3"), zmin=(3e-18, "erg/cm**2/s/arcmin**2"), zmax=(3e-15, "erg/cm**2/s/arcmin**2"))
-        prj1.set_log("xray_0.3", True)
-        prj1.set_figure_size(7)
-        st = r"$t=$ " + f"{time:.3f}" 
-        prj1.annotate_text([4.1e18,0,-2.75e18], st, text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5}) # , fontsize=14
-        # add streamlines
-        #prj1.annotate_streamlines(("gas", "magnetic_field_z"), ("gas", "magnetic_field_x"), color="white", factor=1, density=1.3)
-        #slc1.annotate_line_integral_convolution(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"),lim=(0.5,0.65))
-
-        plot1 = prj1.plots['xray_0.3']
-        plot1.figure = fig
-        plot1.axes = grid[0].axes
-        plot1.cax = grid.cbar_axes[0]
-
-        prj1._setup_plots()
-        plot1.axes.tick_params(which="major", direction="inout", width=1, length=8)
-        plot1.axes.tick_params(which="minor", direction="in", width=1, length=2)
-        plot1.axes.yaxis.set_label_coords(-0.14,0.5)
-        plot1.axes.xaxis.set_label_coords(0.5,-0.1)
-        plot1.axes.set_xlim(-1,0.8)
-        plot1.axes.set_ylim(-1.5,1.5)
-        plot1.axes.set_xticks([-1,-0.5,0,0.5])
-      
-        # second plot: XY plane, on the right
-        prj2 = yt.ProjectionPlot( ds, "z", ("gas", "xray_0.3"),  width=(4.5, "pc"), origin="native", method="integrate", buff_size=(1024, 1024))
-        prj2.set_cmap("xray_0.3", "magma")
-        prj2.set_zlim(("gas", "xray_0.3"), zmin=(3e-18, "erg/cm**2/s/arcmin**2"), zmax=(3e-15, "erg/cm**2/s/arcmin**2"))
-        prj2.set_log("xray_0.3", True)
-        prj2.set_figure_size(7)
-
-        plot2 = prj2.plots['xray_0.3']
-        plot2.figure = fig
-        plot2.axes = grid[1].axes
-        plot2.cax = grid.cbar_axes[1]
-        plot2.axes.yaxis.tick_right()
-        prj2._setup_plots()
-        plot2.axes.yaxis.set_label_position("right")
-        plot2.axes.yaxis.set_label_coords(1.15,0.5)
-        plot2.axes.xaxis.set_label_coords(0.5,-0.1)
-        plot2.axes.tick_params(which="major", direction="inout", width=1, length=8)
-        plot2.axes.tick_params(which="minor", direction="in", width=1, length=2)
-        plot2.axes.set_xlim(-1,0.8)
-        plot2.axes.set_ylim(-1.5,1.5)
-        plot2.axes.set_xticks([-1,-0.5,0,0.5])
-
-        #prj = ds.proj(("gas", ""xray_0.3""), 0)
-        #frb = prj.to_frb((4.5, "pc"), 1024)
-        ax = grid[0].axes
-        ff = "../torus/"+irpath+"/Ostar_"+irpath+"_24um_XZ_t90.fits"
-        ir = PlottingFITS(ff)
-        #ir = PlottingFITS("../torus/hires/Ostar_mhdBY_d3n0384l3_s7_01453056_24um_t90.fits")
-        data = ir.data()
-        x_axis = ir.extents()[0] / 206264.80749673 / 2
-        y_axis = ir.extents()[1] / 206264.80749673 / 2
-        ext = [-y_axis, y_axis, -x_axis, x_axis]
-        im1 = ax.contour(np.flip(data,axis=0),extent=ext,levels=[50,100,200,300,400,500,600],colors="white")
-
-        ax = grid[1].axes
-        ff = "../torus/"+irpath+"/Ostar_"+irpath+"_24um_XY_t90.fits"
-        ir = PlottingFITS(ff)
-        #ir = PlottingFITS("../torus/hires/Ostar_mhdBY_d3n0384l3_s7_01453056_24um_t90.fits")
-        data = ir.data()
-        x_axis = ir.extents()[0] / 206264.80749673 / 2
-        y_axis = ir.extents()[1] / 206264.80749673 / 2
-        ext = [-y_axis, y_axis, -x_axis, x_axis]
-        im1 = ax.contour(np.flip(data,axis=0),extent=ext,levels=[50,100,200,300,400,500,600],colors="white")
-
-        num = str(i).zfill(5)
-        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_Proj_Xray003_IR_{num}.png"), dpi=300, bbox_inches="tight")
         plt.close(fig)
 
 

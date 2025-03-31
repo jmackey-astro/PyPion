@@ -10,9 +10,12 @@ from .ReadData import ReadData
 
 
 
-class pion2yt(ReadData):
-#  def __init__(self):
-#    print("init pion2yt")
+class pion2yt:
+
+##########################################################################
+  def __init__(self):
+      print("init pion2yt")
+  #    return make_snapshots(data_path, file_base):
 
 ##########################################################################
   def make_snapshots(self, data_path, file_base):
@@ -92,11 +95,12 @@ class pion2yt(ReadData):
       ndim = data.ndim()
 
       if (ndim==3):
-        ds = get_ds3D(data, quantities, **kwargs)
+        ds = self.get_ds3D(data, quantities, **kwargs)
       elif (ndim==2):
-        ds = get_ds2D(data, quantities, **kwargs)
+        ds = self.get_ds2D(data, quantities, **kwargs)
       elif (ndim==1):
-        ds = get_ds2D(data, quantities, **kwargs)
+        print("IMPLEMENT A 1D READER PLEASE! AND WHY DO YOU NEED YT?")
+        ds = self.get_ds2D(data, quantities, **kwargs)
       else:
         print("Bad ndim in silo file:", ndim)
         quit()
@@ -181,6 +185,10 @@ class pion2yt(ReadData):
               g[("gas", "NG_Mask")] = (data_ngmask[i], "K")
           if quantities.__contains__("windtracer"):
               g[("gas", "windtracer")] = (data_windtr[i], "")
+          if quantities.__contains__("windtracer0"):
+              g[("gas", "windtracer0")] = (data_windtr0[i], "")
+          if quantities.__contains__("windtracer1"):
+              g[("gas", "windtracer1")] = (data_windtr1[i], "")
           if quantities.__contains__("velocity"):
               g[("gas", "velocity_x")] = (data_velx[i], "cm/s")
               g[("gas", "velocity_y")] = (data_vely[i], "cm/s")
