@@ -19,7 +19,7 @@ from matplotlib.colorbar import Colorbar
 import sys
 import pathlib
 home = str(pathlib.Path.home())
-from misc.make_movies import make_movies
+#from misc.make_movies import make_movies
 from datetime import datetime
 
 
@@ -773,7 +773,7 @@ class YTPlotFunction():
             del sc, cam
             i+=1
 
-        make_movies(self.img_dir, self.img_dir, "sim-vol-img.mp4")
+        #make_movies(self.img_dir, self.img_dir, "sim-vol-img.mp4")
 
 
 

@@ -17,8 +17,8 @@ k   = apc.k_B.cgs.value
 mu  = 0.61   # meam mass per particle for fully ionized gas.
 
 class derived_fields():
-  def __init__(self):
-    print("init derived fields")
+#  def __init__(self):
+#    print("init derived fields")
 
 ###############################################################################
 # Load xray emissivity data into memory
