@@ -160,7 +160,7 @@ class YTPlotFunction(pion2yt):
         print(f"Plotting SMR for snapshot {i}...")
         slc = yt.SlicePlot(ds, "z", "windtracer0")
        
-        slc.set_cmap("windtracer", "gray")
+        slc.set_cmap("windtracer0", "gray")
         slc.set_figure_size(5)
         slc.zoom(2)
         slc.set_log("windtracer0", False)
