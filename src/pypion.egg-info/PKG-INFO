@@ -14,6 +14,7 @@ Description-Content-Type: text/markdown
 License-File: LICENSE.md
 Requires-Dist: numpy
 Requires-Dist: astropy
+Requires-Dist: yt
 Dynamic: license-file
 
 # Python Library for PION
