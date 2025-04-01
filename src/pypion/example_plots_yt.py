@@ -48,8 +48,8 @@ class yt_example_plots(pion2yt):
     ###########################################################################
     def plot_projected_quantity(self, i, plot_quantity, ds_quantities, north_vec, norm, **kwargs):
         print(f"Loading dataset: Sim Snapshot {i}")
-        ds = get_ds(self.evolution[i], ds_quantities, start_time=self.start_time)
-        time = ds.current_time.value
+        ds = self.get_ds(self.evolution[i], ds_quantities, start_time=self.start_time)
+        time = ds.current_time
         print(time)
         print(f"Successfully Loaded dataset: {str(ds)}")
         print(f"Plotting {plot_quantity} for snapshot {i}...")
@@ -63,13 +63,16 @@ class yt_example_plots(pion2yt):
         ax = fig.axes[0]
         #ax.set_xlabel("x (AU)")
         #ax.set_ylabel("y (AU)")
+        for t in ax.get_xlabel():
+          t.set_fontweight('bold')
         st = r"$t=$ = " + f"{time:.5f}"
         ax.text(0.1, 0.9, st, color="black", fontsize=8,
                 transform=ax.transAxes,
                 bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=1', alpha=0.5))
         
         return fig
-    
+
+
     ###########################################################################
     def temp_quantity_plotter(self, plot_quantity, ds_quantities, north_vec, norm, **kwargs):
         self.plot_indices = self.three_slice_indices() # list of indices for pre-periastron, periastron, and post-periastron snapshots
@@ -98,39 +101,41 @@ class yt_example_plots(pion2yt):
         slc.annotate_grids(linewidth=1, edgecolors="black")
         slc.annotate_cell_edges(line_width=0.00001, alpha=0.6, color="black")
         # slc.set_font({"family": "times new roman"})
-        slc.set_font({"family": "mpl-default", "size": 11, "weight": "bold"})
+        slc.set_font({"family": "Sans", "size": 14, "weight": "normal"})
         fig = slc.export_to_mpl_figure((1,1), cbar_mode="single") # export to matplotlib figure
         ax = fig.axes[0]
-        #ax.set_xlabel("$\mathrm{x}$ (pc)")
-        #ax.set_ylabel("y (pc)")
+        t = ax.get_xlabel()
+        ax.set_xlabel(t, weight='bold')  # not working because it is mathmode
 
         #ax.legend(loc="upper right", frameon=True, framealpha=1, facecolor="white", fontsize=14)
         fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_grid_{i}.png"), dpi=300, bbox_inches="tight")
         fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_grid_{i}.pdf"), dpi=300, bbox_inches="tight")
 
     ###########################################################################
-    def plot_Bfield_XY(self, i):
+    def plot_Bfield_XY(self, i, dmin, dmax):
         print(f"Loading dataset: Sim Snapshot {i}")
-        ds = get_ds(self.evolution[i], quantities=["density", "magnetic_field"])
+        ds = self.get_ds(self.evolution[i], quantities=["density", "magnetic_field"])
         time = (ds.current_time.to("Myr"))
         print(time)
         print(f"Successfully Loaded dataset: {str(ds)}")
         print(f"Plotting rho+B for snapshot {i}...")
         # Coordinates are in (z,y,x) ordering.
-        slc = yt.SlicePlot(ds, "z", "density", width=(4.5, "pc"),origin="native")
+        #slc = yt.SlicePlot(ds, "z", "density", width=(4.5, "pc"),origin="native")
+        slc = yt.SlicePlot(ds, "z", "density",origin="native")
         slc.set_cmap("density", "viridis")
         slc.set_figure_size(5)
         slc.set_log("density", True)
-        slc.set_zlim(("gas", "density"), zmin=(10e-28, "g/cm**3"), zmax=(1e-22, "g/cm**3"))
+        slc.set_zlim(("gas", "density"), zmin=(dmin, "g/cm**3"), zmax=(dmax, "g/cm**3"))
         slc.annotate_streamlines(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"), color="white", factor=1, density=1.5)
         #slc.annotate_grids()
         #slc.annotate_line_integral_convolution(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"),lim=(0.5,0.65))
 
         fig = slc.export_to_mpl_figure((1,1), cbar_mode="single") # export to matplotlib figure
         ax = fig.axes[0]
-        ax.set_xlabel("x (pc)")
-        ax.set_ylabel("y (pc)")
-        num = "{:05.4f}".format(time.value) + " Myr"
+        #ax.set_xlabel("x (pc)")
+        #ax.set_ylabel("y (pc)")
+        #num = "{:05.4f}".format(time.value) + " Myr"
+        num = "{:05.4f}".format(time)
         ax.text(0.725, 0.95, num, transform=ax.transAxes, fontsize=16)
 
         num = str(i).zfill(5)
@@ -138,9 +143,38 @@ class yt_example_plots(pion2yt):
         fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_Bfield_contours_XY_{num}.png"), dpi=300, bbox_inches="tight")
         plt.close(fig)
 
+    ###########################################################################
+    def plot_Bfield_XY_picasso(self, i, dmin, dmax):
+        print(f"Loading dataset: Sim Snapshot {i}")
+        ds = self.get_ds(self.evolution[i], quantities=["density", "magnetic_field"])
+        time = (ds.current_time.to("Myr"))
+        print(time)
+        print(f"Successfully Loaded dataset: {str(ds)}")
+        print(f"Plotting rho+B for snapshot {i}...")
+        # Coordinates are in (z,y,x) ordering.
+        #slc = yt.SlicePlot(ds, "z", "density", width=(4.5, "pc"),origin="native")
+        slc = yt.SlicePlot(ds, "z", "density",origin="native")
+        slc.set_cmap("density", "viridis")
+        slc.set_figure_size(5)
+        slc.set_log("density", True)
+        slc.set_zlim(("gas", "density"), zmin=(dmin, "g/cm**3"), zmax=(dmax, "g/cm**3"))
+        #slc.annotate_streamlines(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"), color="white", factor=1, density=1.5)
+        slc.annotate_grids()
+        slc.annotate_line_integral_convolution(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"),lim=(0.5,0.65))
+
+        fig = slc.export_to_mpl_figure((1,1), cbar_mode="single") # export to matplotlib figure
+        ax = fig.axes[0]
+        num = "{:05.4f}".format(time)
+        ax.text(0.725, 0.95, num, transform=ax.transAxes, fontsize=16)
+
+        num = str(i).zfill(5)
+
+        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_Bfield_artistic_XY_{num}.png"), dpi=300, bbox_inches="tight")
+        plt.close(fig)
+
 
     ###########################################################################
-    def plot_Bfield_ZX(self, i):
+    def plot_Bfield_ZX(self, i, dmin, dmax):
         print(f"Loading dataset: Sim Snapshot {i}")
         ds = get_ds(self.evolution[i], quantities=["density", "magnetic_field"])
         time = (ds.current_time.to("Myr"))
@@ -148,22 +182,15 @@ class yt_example_plots(pion2yt):
         print(f"Successfully Loaded dataset: {str(ds)}")
         print(f"Plotting rho+B for snapshot {i}...")
         # Coordinates are in (z,y,x) ordering.
-# plot density
-        slc = yt.SlicePlot(ds, "y", "density", width=(4.5, "pc"),origin="native") #, center=[0.5,0.5,0.7857142857])
+        # plot density
+        #slc = yt.SlicePlot(ds, "y", "density", width=(4.5, "pc"),origin="native")
+        slc = yt.SlicePlot(ds, "y", "density",origin="native")
         slc.swap_axes()
         slc.set_cmap("density", "viridis")
         slc.set_figure_size(5)
         slc.set_log("density", True)
-        slc.set_zlim(("gas", "density"), zmin=(10e-28, "g/cm**3"), zmax=(1e-22, "g/cm**3"))
-        #slc.set_log("density", False)
-        #slc.set_zlim(("gas", "density"), zmin=-27.5, zmax=-22.0)
-# plot |B|
-#        slc = yt.SlicePlot(ds, "y", "magnetic_field_magnitude", width=(4.5, "pc"),origin="native") #, center=[0.5,0.5,0.7857142857])
-#        slc.set_cmap("magnetic_field_magnitude", "magma")
-#        slc.set_figure_size(5)
-#        slc.set_log("magnetic_field_magnitude", True)
-#        slc.set_zlim(("gas", "magnetic_field_magnitude"), zmin=(1e-8, "G"), zmax=(1e-4, "G"))
-# add streamlines
+        slc.set_zlim(("gas", "density"), zmin=(dmin, "g/cm**3"), zmax=(dmax, "g/cm**3"))
+        # add streamlines
         slc.annotate_streamlines(("gas", "magnetic_field_z"), ("gas", "magnetic_field_x"), color="white", factor=1, density=1.5)
         #slc.hide_colorbar("density")
         #slc.annotate_grids()
@@ -171,8 +198,8 @@ class yt_example_plots(pion2yt):
 
         fig = slc.export_to_mpl_figure((1,1), cbar_mode="single") # export to matplotlib figure
         ax = fig.axes[0]
-        ax.set_xlabel("x (pc)")
-        ax.set_ylabel("z (pc)")
+        #ax.set_xlabel("x (pc)")
+        #ax.set_ylabel("z (pc)")
         num = "{:05.4f}".format(time.value) + " Myr"
         ax.text(0.725, 0.95, num, transform=ax.transAxes, fontsize=16)
   
@@ -180,11 +207,44 @@ class yt_example_plots(pion2yt):
         fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_Bfield_contours_ZX_{num}.png"), dpi=300, bbox_inches="tight")
         plt.close(fig)
 
+    ###########################################################################
+    def plot_Bfield_ZX_picasso(self, i, dmin, dmax):
+        print(f"Loading dataset: Sim Snapshot {i}")
+        ds = self.get_ds(self.evolution[i], quantities=["density", "magnetic_field"])
+        time = (ds.current_time.to("Myr"))
+        print(time)
+        print(f"Successfully Loaded dataset: {str(ds)}")
+        print(f"Plotting rho+B for snapshot {i}...")
+        # Coordinates are in (z,y,x) ordering.
+        # plot density
+        #slc = yt.SlicePlot(ds, "y", "density", width=(4.5, "pc"),origin="native")
+        slc = yt.SlicePlot(ds, "y", "density",origin="native")
+        slc.swap_axes()
+        slc.set_cmap("density", "viridis")
+        slc.set_figure_size(5)
+        slc.set_log("density", True)
+        slc.set_zlim(("gas", "density"), zmin=(dmin, "g/cm**3"), zmax=(dmax, "g/cm**3"))
+        # add streamlines
+        #slc.annotate_streamlines(("gas", "magnetic_field_z"), ("gas", "magnetic_field_x"), color="white", factor=1, density=1.5)
+        #slc.hide_colorbar("density")
+        slc.annotate_grids()
+        slc.annotate_line_integral_convolution(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"),lim=(0.5,0.65))
+
+        fig = slc.export_to_mpl_figure((1,1), cbar_mode="single") # export to matplotlib figure
+        ax = fig.axes[0]
+        #ax.set_xlabel("x (pc)")
+        #ax.set_ylabel("z (pc)")
+        num = "{:05.4f}".format(time.value) + " Myr"
+        ax.text(0.725, 0.95, num, transform=ax.transAxes, fontsize=16)
+  
+        num = str(i).zfill(5)
+        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_Bfield_artistic_ZX_{num}.png"), dpi=300, bbox_inches="tight")
+        plt.close(fig)
 
     ###########################################################################
-    def plot_Bfield_Bmag(self, i):
+    def plot_Bfield_Bmag(self, i, bmin, bmax, zoom):
         print(f"Loading dataset: Sim Snapshot {i}")
-        ds = get_ds(self.evolution[i], quantities=["magnetic_field"])
+        ds = self.get_ds(self.evolution[i], quantities=["magnetic_field"])
         time = (ds.current_time.to("Myr"))
         print(time)
         print(f"Successfully Loaded dataset: {str(ds)}")
@@ -203,18 +263,20 @@ class yt_example_plots(pion2yt):
 
 
         # first plot: XZ plane, on the left
-        slc1 = yt.SlicePlot(ds, "y", "magnetic_field_magnitude", width=(4.5, "pc"),origin="native")
+        #slc1 = yt.SlicePlot(ds, "y", "magnetic_field_magnitude", width=(4.5, "pc"),origin="native")
+        slc1 = yt.SlicePlot(ds, "y", "magnetic_field_magnitude",origin="native")
         #slc1.set_font({'family': 'serif', 'style': 'normal', 'weight': 'normal', 'size': 12})
         slc1.swap_axes()
         slc1.set_cmap("magnetic_field_magnitude", "magma")
-        slc1.set_zlim(("gas", "magnetic_field_magnitude"), zmin=(1e-9, "G"), zmax=(3e-5, "G"))
+        slc1.set_zlim(("gas", "magnetic_field_magnitude"), zmin=(bmin, "G"), zmax=(bmax, "G"))
         slc1.set_log("magnetic_field_magnitude", True)
+        slc1.zoom(zoom)
         slc1.set_figure_size(7)
         #slc1.hide_colorbar()
         st = r"$t=$ " + f"{time:.3f}" 
-        slc1.annotate_text([5.5e18,0,-4e18], st, text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5}) # , fontsize=14
+        slc1.annotate_text([0.325, 0.25], st, coord_system="figure", text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5}) # , fontsize=14
         # add streamlines
-        slc1.annotate_streamlines(("gas", "magnetic_field_z"), ("gas", "magnetic_field_x"), color="white", factor=1, density=1.3)
+        slc1.annotate_streamlines(("gas", "magnetic_field_z"), ("gas", "magnetic_field_x"), color="white", factor=zoom, density=1.3)
         #slc1.annotate_line_integral_convolution(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"),lim=(0.5,0.65))
 
         plot1 = slc1.plots['magnetic_field_magnitude']
@@ -225,18 +287,19 @@ class yt_example_plots(pion2yt):
         slc1._setup_plots()
         plot1.axes.tick_params(which="major", direction="inout", width=1, length=8)
         plot1.axes.tick_params(which="minor", direction="in", width=1, length=2)
-        plot1.axes.yaxis.set_label_coords(-0.1,0.5)
-        plot1.axes.xaxis.set_label_coords(0.5,-0.1)
+        #plot1.axes.yaxis.set_label_coords(-0.1,0.5)
+        #plot1.axes.xaxis.set_label_coords(0.5,-0.1)
       
         # second plot: XY plane, on the right
-        slc2 = yt.SlicePlot(ds, "z", "magnetic_field_magnitude", width=(4.5, "pc"),origin="native")
+        #slc2 = yt.SlicePlot(ds, "z", "magnetic_field_magnitude", width=(4.5, "pc"),origin="native")
+        slc2 = yt.SlicePlot(ds, "z", "magnetic_field_magnitude", origin="native")
         #slc2.set_font({'family': 'serif', 'style': 'normal', 'weight': 'normal', 'size': 12})
         slc2.set_cmap("magnetic_field_magnitude", "magma")
         slc2.set_figure_size(7)
         slc2.set_log("magnetic_field_magnitude", True)
-        #slc2.zoom(16)
-        slc2.set_zlim(("gas", "magnetic_field_magnitude"), zmin=(1e-9, "G"), zmax=(3e-5, "G"))
-        slc2.annotate_streamlines(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"), color="white", factor=1, density=1.3)
+        slc2.zoom(zoom)
+        slc2.set_zlim(("gas", "magnetic_field_magnitude"), zmin=(bmin, "G"), zmax=(bmax, "G"))
+        slc2.annotate_streamlines(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"), color="white", factor=zoom, density=1.3)
 
         #slc2.hide_colorbar()
         plot2 = slc2.plots['magnetic_field_magnitude']
@@ -246,8 +309,8 @@ class yt_example_plots(pion2yt):
         plot2.axes.yaxis.tick_right()
         slc2._setup_plots()
         plot2.axes.yaxis.set_label_position("right")
-        plot2.axes.yaxis.set_label_coords(1.1,0.5)
-        plot2.axes.xaxis.set_label_coords(0.5,-0.1)
+        #plot2.axes.yaxis.set_label_coords(1.1,0.5)
+        #plot2.axes.xaxis.set_label_coords(0.5,-0.1)
         plot2.axes.tick_params(which="major", direction="inout", width=1, length=8)
         plot2.axes.tick_params(which="minor", direction="in", width=1, length=2)
         
@@ -256,9 +319,9 @@ class yt_example_plots(pion2yt):
         plt.close(fig)
 
     ###########################################################################
-    def plot_Bfield_both(self, i):
+    def plot_Bfield_both(self, i, dmin, dmax):
         print(f"Loading dataset: Sim Snapshot {i}")
-        ds = get_ds(self.evolution[i], quantities=["density", "magnetic_field"])
+        ds = self.get_ds(self.evolution[i], quantities=["density", "magnetic_field"])
         time = (ds.current_time.to("Myr"))
         print(time)
         print(f"Successfully Loaded dataset: {str(ds)}")
@@ -277,16 +340,17 @@ class yt_example_plots(pion2yt):
 
 
         # first plot: XZ plane, on the left
-        slc1 = yt.SlicePlot(ds, "y", "density", width=(4.5, "pc"),origin="native")
+        #slc1 = yt.SlicePlot(ds, "y", "density", width=(4.5, "pc"),origin="native")
+        slc1 = yt.SlicePlot(ds, "y", "density",origin="native")
         #slc1.set_font({'family': 'serif', 'style': 'normal', 'weight': 'normal', 'size': 12})
         slc1.swap_axes()
         slc1.set_cmap("density", "viridis")
-        slc1.set_zlim(("gas", "density"), zmin=(3e-28, "g/cm**3"), zmax=(1e-22, "g/cm**3"))
+        slc1.set_zlim(("gas", "density"), zmin=(dmin, "g/cm**3"), zmax=(dmax, "g/cm**3"))
         slc1.set_log("density", True)
         slc1.set_figure_size(7)
         #slc1.hide_colorbar()
         st = r"$t=$ " + f"{time:.3f}" 
-        slc1.annotate_text([5.5e18,0,-4e18], st, text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5}) # , fontsize=14
+        slc1.annotate_text([0.325, 0.25], st, coord_system="figure", text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5}) # , fontsize=14
         # add streamlines
         slc1.annotate_streamlines(("gas", "magnetic_field_z"), ("gas", "magnetic_field_x"), color="white", factor=1, density=1.3)
         #slc1.annotate_line_integral_convolution(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"),lim=(0.5,0.65))
@@ -319,17 +383,18 @@ class yt_example_plots(pion2yt):
         slc1._setup_plots()
         plot1.axes.tick_params(which="major", direction="inout", width=1, length=8)
         plot1.axes.tick_params(which="minor", direction="in", width=1, length=2)
-        plot1.axes.yaxis.set_label_coords(-0.1,0.5)
-        plot1.axes.xaxis.set_label_coords(0.5,-0.1)
+        #plot1.axes.yaxis.set_label_coords(-0.1,0.5)
+        #plot1.axes.xaxis.set_label_coords(0.5,-0.1)
       
         # second plot: XY plane, on the right
-        slc2 = yt.SlicePlot(ds, "z", "density", width=(4.5, "pc"),origin="native") #, center=[0.5,0.5,0.7857142857])
+        #slc2 = yt.SlicePlot(ds, "z", "density", width=(4.5, "pc"),origin="native")
+        slc2 = yt.SlicePlot(ds, "z", "density", origin="native")
         #slc2.set_font({'family': 'serif', 'style': 'normal', 'weight': 'normal', 'size': 12})
         slc2.set_cmap("density", "viridis")
         slc2.set_figure_size(7)
         slc2.set_log("density", True)
         #slc2.zoom(16)
-        slc2.set_zlim(("gas", "density"), zmin=(3e-28, "g/cm**3"), zmax=(1e-22, "g/cm**3"))
+        slc2.set_zlim(("gas", "density"), zmin=(dmin, "g/cm**3"), zmax=(dmax, "g/cm**3"))
         slc2.annotate_streamlines(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"), color="white", factor=1, density=1.3)
 
         #slc2.annotate_grids()
@@ -347,8 +412,8 @@ class yt_example_plots(pion2yt):
         slc2._setup_plots()
         plot2.axes.yaxis.set_label_position("right")
         #plot2.axes.yaxis.set_label("right")
-        plot2.axes.yaxis.set_label_coords(1.1,0.5)
-        plot2.axes.xaxis.set_label_coords(0.5,-0.1)
+        #plot2.axes.yaxis.set_label_coords(1.1,0.5)
+        #plot2.axes.xaxis.set_label_coords(0.5,-0.1)
         plot2.axes.tick_params(which="major", direction="inout", width=1, length=8)
         plot2.axes.tick_params(which="minor", direction="in", width=1, length=2)
         
@@ -357,11 +422,11 @@ class yt_example_plots(pion2yt):
         plt.close(fig)
 
     ###########################################################################
-    def plot_density_2d(self, i):
+    def plot_density_2d(self, i, dmin, dmax, Tmin, Tmax):
         # Plots density and temperature on a log scale, with T reflected onto
         # the lower half-plane.
         print(f"Loading dataset: Sim Snapshot {i}")
-        ds = get_ds(self.evolution[i], quantities=["density", "temperature"])
+        ds = self.get_ds(self.evolution[i], quantities=["density", "temperature"])
         time = (ds.current_time.to("Myr"))
         print(time)
         print(f"Successfully Loaded dataset: {str(ds)}")
@@ -383,11 +448,11 @@ class yt_example_plots(pion2yt):
         slc1 = yt.SlicePlot(ds, "theta", "density")
         slc1.swap_axes()
         slc1.set_cmap("density", "viridis")
-        slc1.set_zlim(("gas", "density"), zmin=(3e-28, "g/cm**3"), zmax=(2e-22, "g/cm**3"))
+        slc1.set_zlim(("gas", "density"), zmin=(dmin, "g/cm**3"), zmax=(dmax, "g/cm**3"))
         slc1.set_log("density", True)
         slc1.set_figure_size(7)
         st = r"$t=$ " + f"{time:.3f}" 
-        slc1.annotate_text([5.75e18,-10.4e18,0], st, text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5}) # , fontsize=14
+        slc1.annotate_text([0.85, 0.525], st, coord_system="figure", text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5}) # , fontsize=14
 
         plot1 = slc1.plots['density']
         plot1.figure = fig
@@ -397,7 +462,7 @@ class yt_example_plots(pion2yt):
         slc1._setup_plots()
         plot1.axes.tick_params(which="major", direction="inout", width=1, length=8)
         plot1.axes.tick_params(which="minor", direction="inout", width=1, length=3)
-        plot1.axes.set_yticks([0,1,2])
+        #plot1.axes.set_yticks([0,1,2])
       
         # second plot: lower half-plane, temperature
         slc2 = yt.SlicePlot(ds, "theta", "temperature")
@@ -406,7 +471,7 @@ class yt_example_plots(pion2yt):
         slc2.set_cmap("temperature", "plasma")
         slc2.set_figure_size(7)
         slc2.set_log("temperature", True)
-        slc2.set_zlim(("gas", "temperature"), zmin=(5000.0, "K"), zmax=(2e8, "K"))
+        slc2.set_zlim(("gas", "temperature"), zmin=(Tmin, "K"), zmax=(Tmax, "K"))
         plot2 = slc2.plots['temperature']
         plot2.figure = fig
         plot2.axes = grid[1].axes
@@ -414,16 +479,16 @@ class yt_example_plots(pion2yt):
         slc2._setup_plots()
         plot2.axes.tick_params(which="major", direction="inout", width=1, length=8)
         plot2.axes.tick_params(which="minor", direction="inout", width=1, length=3)
-        plot2.axes.set_yticks([1,2])
+        #plot2.axes.set_yticks([1,2])
         
         num = str(i).zfill(5)
         fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_rho2d_{num}.png"), dpi=300, bbox_inches="tight")
         plt.close(fig)
 
     ###########################################################################
-    def plot_density_slice_both(self, i):
+    def plot_density_slice_both(self, i, dmin, dmax):
         print(f"Loading dataset: Sim Snapshot {i}")
-        ds = get_ds(self.evolution[i], quantities=["density"])
+        ds = self.get_ds(self.evolution[i], quantities=["density"])
         time = (ds.current_time.to("Myr"))
         print(time)
         print(f"Successfully Loaded dataset: {str(ds)}")
@@ -442,16 +507,17 @@ class yt_example_plots(pion2yt):
 
 
         # first plot: XZ plane, on the left
-        slc1 = yt.SlicePlot(ds, "y", "density", width=(4.5, "pc"),origin="native")
+        #slc1 = yt.SlicePlot(ds, "y", "density", width=(4.5, "pc"),origin="native")
+        slc1 = yt.SlicePlot(ds, "y", "density", origin="native")
         #slc1.set_font({'family': 'serif', 'style': 'normal', 'weight': 'normal', 'size': 12})
         slc1.swap_axes()
         slc1.set_cmap("density", "viridis")
-        slc1.set_zlim(("gas", "density"), zmin=(3e-28, "g/cm**3"), zmax=(1e-22, "g/cm**3"))
+        slc1.set_zlim(("gas", "density"), zmin=(dmin, "g/cm**3"), zmax=(dmax, "g/cm**3"))
         slc1.set_log("density", True)
         slc1.set_figure_size(7)
         #slc1.hide_colorbar()
         st = r"$t=$ " + f"{time:.3f}" 
-        slc1.annotate_text([5.5e18,0,-4e18], st, text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5}) # , fontsize=14
+        slc1.annotate_text([0.675, 0.265], st, coord_system="figure", text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5}) # , fontsize=14
 
         plot1 = slc1.plots['density']
         plot1.figure = fig
@@ -465,13 +531,14 @@ class yt_example_plots(pion2yt):
         plot1.axes.xaxis.set_label_coords(0.5,-0.1)
       
         # second plot: XY plane, on the right
-        slc2 = yt.SlicePlot(ds, "z", "density", width=(4.5, "pc"),origin="native") #, center=[0.5,0.5,0.7857142857])
+        #slc2 = yt.SlicePlot(ds, "z", "density", width=(4.5, "pc"),origin="native")
+        slc2 = yt.SlicePlot(ds, "z", "density", origin="native")
         #slc2.set_font({'family': 'serif', 'style': 'normal', 'weight': 'normal', 'size': 12})
         slc2.set_cmap("density", "viridis")
         slc2.set_figure_size(7)
         slc2.set_log("density", True)
         #slc2.zoom(16)
-        slc2.set_zlim(("gas", "density"), zmin=(3e-28, "g/cm**3"), zmax=(1e-22, "g/cm**3"))
+        slc2.set_zlim(("gas", "density"), zmin=(dmin, "g/cm**3"), zmax=(dmax, "g/cm**3"))
         #slc2.hide_colorbar()
         plot2 = slc2.plots['density']
         plot2.figure = fig
@@ -494,13 +561,13 @@ class yt_example_plots(pion2yt):
         plt.close(fig)
 
     ###########################################################################
-    def plot_Xray_intensity(self, i):
+    def plot_Xray_intensity(self, i, jmin, jmax):
         print(f"Loading dataset: Sim Snapshot {i}")
-        ds = get_ds(self.evolution[i], quantities=["xray_emission"])
+        ds = self.get_ds(self.evolution[i], quantities=["xray_emission"])
         time = (ds.current_time.to("Myr"))
         print(time)
         print(f"Successfully Loaded dataset: {str(ds)}")
-        print(f"Plotting rho+B for snapshot {i}...")
+        print(f"Plotting x-ray intensity for snapshot {i}...")
         
         fig = plt.figure()
         grid = ImageGrid(fig, (0.075,0.075,0.85,0.85),
@@ -515,14 +582,15 @@ class yt_example_plots(pion2yt):
 
 
         # first plot: XZ plane, on the left
-        prj1 = yt.ProjectionPlot( ds, "y", ("gas", "xray_0.3"),  width=(4.5, "pc"),origin="native", method="integrate", buff_size=(1024, 1024))
+        #prj1 = yt.ProjectionPlot( ds, "y", ("gas", "xray_0.3"),  width=(4.5, "pc"),origin="native", method="integrate", buff_size=(1024, 1024))
+        prj1 = yt.ProjectionPlot( ds, "y", ("gas", "xray_0.3"), origin="native", method="integrate", buff_size=(1024, 1024))
         prj1.swap_axes()
         prj1.set_cmap("xray_0.3", "magma")
-        prj1.set_zlim(("gas", "xray_0.3"), zmin=(3e-18, "erg/cm**2/s/arcmin**2"), zmax=(3e-15, "erg/cm**2/s/arcmin**2"))
+        prj1.set_zlim(("gas", "xray_0.3"), zmin=(jmin, "erg/cm**2/s/arcmin**2"), zmax=(jmax, "erg/cm**2/s/arcmin**2"))
         prj1.set_log("xray_0.3", True)
         prj1.set_figure_size(7)
         st = r"$t=$ " + f"{time:.3f}" 
-        prj1.annotate_text([5.5e18,0,-4e18], st, text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5}) # , fontsize=14
+        prj1.annotate_text([0.675, 0.265], st, coord_system="figure", text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5})
         # add streamlines
         #prj1.annotate_streamlines(("gas", "magnetic_field_z"), ("gas", "magnetic_field_x"), color="white", factor=1, density=1.3)
         #slc1.annotate_line_integral_convolution(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"),lim=(0.5,0.65))
@@ -539,9 +607,10 @@ class yt_example_plots(pion2yt):
         plot1.axes.xaxis.set_label_coords(0.5,-0.1)
       
         # second plot: XY plane, on the right
-        prj2 = yt.ProjectionPlot( ds, "z", ("gas", "xray_0.3"),  width=(4.5, "pc"),origin="native", method="integrate", buff_size=(1024, 1024))
+        #prj2 = yt.ProjectionPlot( ds, "z", ("gas", "xray_0.3"), width=(4.5, "pc"),origin="native", method="integrate", buff_size=(1024, 1024))
+        prj2 = yt.ProjectionPlot( ds, "z", ("gas", "xray_0.3"), origin="native", method="integrate", buff_size=(1024, 1024))
         prj2.set_cmap("xray_0.3", "magma")
-        prj2.set_zlim(("gas", "xray_0.3"), zmin=(3e-18, "erg/cm**2/s/arcmin**2"), zmax=(3e-15, "erg/cm**2/s/arcmin**2"))
+        prj2.set_zlim(("gas", "xray_0.3"), zmin=(jmin, "erg/cm**2/s/arcmin**2"), zmax=(jmax, "erg/cm**2/s/arcmin**2"))
         prj2.set_log("xray_0.3", True)
         prj2.set_figure_size(7)
 
@@ -562,53 +631,6 @@ class yt_example_plots(pion2yt):
         plt.close(fig)
 
 
-    ###########################################################################
-    def volume_rendering(self, **kwargs):
-        from yt.units import cm
-        # Creating volume renderings at each time step in ts
-        i=0
-        for file in self.evolution[40:]:
-            ds = get_ds(file)
-            sc = yt.create_scene(ds)
-            # Print the time of the current scene
-            print(f"Time: {ds.current_time.to('s')}")
-            time = np.float64(ds.current_time.to('Myr').value)
-            print(type(time))
-            # if kwargs['trajectory_file'] is not None:
-                # star1_x, star1_y, star2_x, star2_y, star1_z, star2_z = self.get_star_position(kwargs['trajectory_file'], [time])
-            # identifying the source
-            source = sc[0]
-            source.set_field('density')
-            source.set_log(True)
-
-            # building transfer function
-            bounds = (1e-28, 1e-21)
-            tf = yt.ColorTransferFunction(x_bounds=np.log10(bounds), nbins=500)
-            # Automatically add a number of layers
-            tf.add_layers(8, w=0.002, colormap='viridis')
-            
-            source.tfh.tf = tf
-            source.tfh.bounds = bounds
-            
-            cam = sc.camera
-            cam
-            cam.zoom(2.2)
-            cam.resolution = (4096, 4096)
-            cam.switch_orientation(normal_vector=[-1,0,0], north_vector=[0.2,1,0])
-
-            # colors = np.random.random([1, 4])
-            # colors[:, 3] = 1.0
-        
-
-            # points = PointSource(np.array([star1_x*cm, star1_y*cm, star1_z*cm]), colors=colors, radii=5e12)
-            # sc.add_source(points)
-
-            sc.save(os.path.join(self.img_dir, f"sim-vol-img_{i+1}"), sigma_clip=6.0)
-            print(f"Saving image {os.path.join(self.img_dir, f'sim-vol-img_{i+1}.png')}")
-            del sc, cam
-            i+=1
-
-        #make_movies(self.img_dir, self.img_dir, "sim-vol-img.mp4")
 
 
 
