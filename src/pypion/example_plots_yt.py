@@ -21,7 +21,7 @@ home = str(pathlib.Path.home())
 from datetime import datetime
 
 
-class YTPlotFunction(pion2yt):
+class yt_example_plots(pion2yt):
 
     # Constructor
     def __init__(self, data_path, file_base, img_dir, sim_name, quantities=["density"]):
@@ -43,75 +43,6 @@ class YTPlotFunction(pion2yt):
     def get_nframes(self):
         return self.evolution.shape[0]
 
-    ###########################################################################
-    # Calculate yt dataset of synchrotron emissivity
-    def add_synchrotron_emission(self, ds):
-        from unyt import K, g, cm, s
-        def _Isync(field, data):
-            Isync = data["magnetic_field_magnitude"]**(3/2) * data["pressure"] * data["NG_Mask"]
-            return Isync * (K*g**(7/4)/(cm**(3/4)*s**(7/2)))**-1 * cm
-
-        # add synchrotron emission field to dataset
-        ds.add_field(("gas", "Isync"), function=_Isync, units="auto", sampling_type="cell", force_override=True) 
-
-
-    ###########################################################################
-    def plot_synchrotron_emission(self, i, north_vec, norm, **kwargs):
-
-        """
-        Function that creates synchrotron emission maps using the
-        yt.OffAxisProjectionPlot function. Converts the yt figure
-        into a mpl figure and returns the mpl fig object.
-
-        Parameters
-        ----------
-        i : int
-
-            index of snapshot to plot
-
-        north_vec : list
-
-            list of three floats that define the north vector of the
-            projection plot
-        
-        norm : list
-
-            list of three floats that define the normal vector to the
-            projection plot
-
-        **kwargs : dict
-        
-            dictionary of keyword arguments to pass to the yt.OffAxisProjectionPlot
-        
-        Returns
-        -------
-        fig : matplotlib.figure.Figure
-
-        """
-
-        print(f"Loading dataset: Sim Snapshot {i}")
-        ds = get_ds(self.evolution[i], quantities=["magnetic_field", "pressure", "NG_Mask"])
-        time = (ds.current_time.to("Myr")).value
-        print(f"Successfully Loaded dataset: {str(ds)} at time {time:12.3e} Myr")
-        self.add_synchrotron_emission(ds)
-        print(f"Added Synchrotron emission field")
-        print(f"Plotting Isync for snapshot {i}...")
-        prj = yt.OffAxisProjectionPlot(ds, normal=norm, north_vector=north_vec, fields=("gas", "Isync")) # create projection plot
-        prj.set_cmap(("gas", "Isync"), "gist_heat")
-        prj.hide_colorbar("Isync")
-        prj.set_figure_size(5)
-        prj.zoom(kwargs.get("zoom", 1))
-        prj.set_zlim(("gas", "Isync"), 1e10, 5e15)
-        # prj.set_font({"family": "sans-serif", "size": 8})
-
-        fig = prj.export_to_mpl_figure((1,1), cbar_mode=kwargs.get("cbarmode", "single")) # export to matplotlib figure
-        ax = fig.axes[0] 
-        ax.set_xlabel("x (pc)") 
-        ax.set_ylabel("y (pc)")
-        st = r"$t=$ " + f"{time:.2f} Myr" 
-        ax.text(0.8, 0.9, st, color="black", fontsize=12, transform=ax.transAxes, 
-                    bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=1', alpha=0.5))
-        return fig 
 
 
     ###########################################################################
@@ -127,13 +58,12 @@ class YTPlotFunction(pion2yt):
         prj.set_figure_size(kwargs.get("figsize", 5))
         # prj.set_zlim(("gas", plot_quantity), kwargs.get("zlim", None))
         print(f"Saving image {plot_quantity}_{i}.png...")
-        phase = ((self.period + (time*u.s).to(u.yr))/self.period).value
 
         fig = prj.export_to_mpl_figure((1,1), cbar_mode="single") # export to matplotlib figure
         ax = fig.axes[0]
-        ax.set_xlabel("x (AU)")
-        ax.set_ylabel("y (AU)")
-        st = r"$\phi$ = " + f"{phase:.2f}"
+        #ax.set_xlabel("x (AU)")
+        #ax.set_ylabel("y (AU)")
+        st = r"$t=$ = " + f"{time:.5f}"
         ax.text(0.1, 0.9, st, color="black", fontsize=8,
                 transform=ax.transAxes,
                 bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=1', alpha=0.5))
@@ -151,31 +81,32 @@ class YTPlotFunction(pion2yt):
 
 
     ###########################################################################
-    def plot_smr_plot(self, i):
+    def plot_grid_plot(self, i):
         print(f"Loading dataset: Sim Snapshot {i}")
-        ds = self.get_ds(self.evolution[i], quantities=["windtracer0"])
+        ds = self.get_ds(self.evolution[i], quantities=["density"])
         time = ds.current_time.value
         print(time)
         print(f"Successfully Loaded dataset: {str(ds)}")
-        print(f"Plotting SMR for snapshot {i}...")
-        slc = yt.SlicePlot(ds, "z", "windtracer0")
+        print(f"Plotting SMR grid for snapshot {i}...")
+        slc = yt.SlicePlot(ds, "z", "density")
        
-        slc.set_cmap("windtracer0", "gray")
+        slc.set_cmap("density", "GnBu")
         slc.set_figure_size(5)
-        slc.zoom(2)
-        slc.set_log("windtracer0", False)
-        slc.set_zlim("windtracer0", -10, 0)
+        slc.zoom(1)
+        slc.set_log("density", True)
+        #slc.set_zlim("density", )
         slc.annotate_grids(linewidth=1, edgecolors="black")
-        slc.annotate_cell_edges(line_width=0.00001, alpha=0.5, color="black")
+        slc.annotate_cell_edges(line_width=0.00001, alpha=0.6, color="black")
         # slc.set_font({"family": "times new roman"})
         slc.set_font({"family": "mpl-default", "size": 11, "weight": "bold"})
         fig = slc.export_to_mpl_figure((1,1), cbar_mode="single") # export to matplotlib figure
         ax = fig.axes[0]
-        ax.set_xlabel("$\mathrm{x}$ (pc)")
-        ax.set_ylabel("y (pc)")
+        #ax.set_xlabel("$\mathrm{x}$ (pc)")
+        #ax.set_ylabel("y (pc)")
 
-        ax.legend(loc="upper right", frameon=True, framealpha=1, facecolor="white", fontsize=14)
-        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_smr_{i}.png"), dpi=300, bbox_inches="tight")
+        #ax.legend(loc="upper right", frameon=True, framealpha=1, facecolor="white", fontsize=14)
+        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_grid_{i}.png"), dpi=300, bbox_inches="tight")
+        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_grid_{i}.pdf"), dpi=300, bbox_inches="tight")
 
     ###########################################################################
     def plot_Bfield_XY(self, i):
