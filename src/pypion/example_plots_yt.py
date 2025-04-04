@@ -48,8 +48,8 @@ class yt_example_plots(pion2yt):
     ###########################################################################
     def plot_projected_quantity(self, i, plot_quantity, ds_quantities, north_vec, norm, **kwargs):
         print(f"Loading dataset: Sim Snapshot {i}")
-        ds = self.get_ds(self.evolution[i], ds_quantities, start_time=self.start_time)
-        time = ds.current_time
+        ds = self.get_ds(self.evolution[i], ds_quantities)
+        time = (ds.current_time.to("Myr"))
         print(time)
         print(f"Successfully Loaded dataset: {str(ds)}")
         print(f"Plotting {plot_quantity} for snapshot {i}...")
@@ -57,20 +57,19 @@ class yt_example_plots(pion2yt):
         prj.set_cmap(("gas", plot_quantity), kwargs.get("cmap", "viridis"))
         prj.set_figure_size(kwargs.get("figsize", 5))
         # prj.set_zlim(("gas", plot_quantity), kwargs.get("zlim", None))
-        print(f"Saving image {plot_quantity}_{i}.png...")
 
         fig = prj.export_to_mpl_figure((1,1), cbar_mode="single") # export to matplotlib figure
         ax = fig.axes[0]
         #ax.set_xlabel("x (AU)")
         #ax.set_ylabel("y (AU)")
-        for t in ax.get_xlabel():
-          t.set_fontweight('bold')
         st = r"$t=$ = " + f"{time:.5f}"
         ax.text(0.1, 0.9, st, color="black", fontsize=8,
                 transform=ax.transAxes,
                 bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=1', alpha=0.5))
-        
-        return fig
+        num = str(i).zfill(5)
+        print(f"Saving image {self.sim_name}_{{plot_quantity}_{num}.png...")
+        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_{plot_quantity}_{num}.png"), dpi=300, bbox_inches="tight")
+        #return fig
 
 
     ###########################################################################
@@ -87,7 +86,7 @@ class yt_example_plots(pion2yt):
     def plot_grid_plot(self, i):
         print(f"Loading dataset: Sim Snapshot {i}")
         ds = self.get_ds(self.evolution[i], quantities=["density"])
-        time = ds.current_time.value
+        time = (ds.current_time.to("Myr"))
         print(time)
         print(f"Successfully Loaded dataset: {str(ds)}")
         print(f"Plotting SMR grid for snapshot {i}...")
@@ -108,8 +107,9 @@ class yt_example_plots(pion2yt):
         ax.set_xlabel(t, weight='bold')  # not working because it is mathmode
 
         #ax.legend(loc="upper right", frameon=True, framealpha=1, facecolor="white", fontsize=14)
-        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_grid_{i}.png"), dpi=300, bbox_inches="tight")
-        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_grid_{i}.pdf"), dpi=300, bbox_inches="tight")
+        num = str(i).zfill(5)
+        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_grid_{num}.png"), dpi=300, bbox_inches="tight")
+        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_grid_{num}.pdf"), dpi=300, bbox_inches="tight")
 
     ###########################################################################
     def plot_Bfield_XY(self, i, dmin, dmax):
@@ -141,35 +141,6 @@ class yt_example_plots(pion2yt):
         num = str(i).zfill(5)
 
         fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_Bfield_contours_XY_{num}.png"), dpi=300, bbox_inches="tight")
-        plt.close(fig)
-
-    ###########################################################################
-    def plot_Bfield_XY_picasso(self, i, dmin, dmax):
-        print(f"Loading dataset: Sim Snapshot {i}")
-        ds = self.get_ds(self.evolution[i], quantities=["density", "magnetic_field"])
-        time = (ds.current_time.to("Myr"))
-        print(time)
-        print(f"Successfully Loaded dataset: {str(ds)}")
-        print(f"Plotting rho+B for snapshot {i}...")
-        # Coordinates are in (z,y,x) ordering.
-        #slc = yt.SlicePlot(ds, "z", "density", width=(4.5, "pc"),origin="native")
-        slc = yt.SlicePlot(ds, "z", "density",origin="native")
-        slc.set_cmap("density", "viridis")
-        slc.set_figure_size(5)
-        slc.set_log("density", True)
-        slc.set_zlim(("gas", "density"), zmin=(dmin, "g/cm**3"), zmax=(dmax, "g/cm**3"))
-        #slc.annotate_streamlines(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"), color="white", factor=1, density=1.5)
-        slc.annotate_grids()
-        slc.annotate_line_integral_convolution(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"),lim=(0.5,0.65))
-
-        fig = slc.export_to_mpl_figure((1,1), cbar_mode="single") # export to matplotlib figure
-        ax = fig.axes[0]
-        num = "{:05.4f}".format(time)
-        ax.text(0.725, 0.95, num, transform=ax.transAxes, fontsize=16)
-
-        num = str(i).zfill(5)
-
-        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_Bfield_artistic_XY_{num}.png"), dpi=300, bbox_inches="tight")
         plt.close(fig)
 
 
@@ -205,40 +176,6 @@ class yt_example_plots(pion2yt):
   
         num = str(i).zfill(5)
         fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_Bfield_contours_ZX_{num}.png"), dpi=300, bbox_inches="tight")
-        plt.close(fig)
-
-    ###########################################################################
-    def plot_Bfield_ZX_picasso(self, i, dmin, dmax):
-        print(f"Loading dataset: Sim Snapshot {i}")
-        ds = self.get_ds(self.evolution[i], quantities=["density", "magnetic_field"])
-        time = (ds.current_time.to("Myr"))
-        print(time)
-        print(f"Successfully Loaded dataset: {str(ds)}")
-        print(f"Plotting rho+B for snapshot {i}...")
-        # Coordinates are in (z,y,x) ordering.
-        # plot density
-        #slc = yt.SlicePlot(ds, "y", "density", width=(4.5, "pc"),origin="native")
-        slc = yt.SlicePlot(ds, "y", "density",origin="native")
-        slc.swap_axes()
-        slc.set_cmap("density", "viridis")
-        slc.set_figure_size(5)
-        slc.set_log("density", True)
-        slc.set_zlim(("gas", "density"), zmin=(dmin, "g/cm**3"), zmax=(dmax, "g/cm**3"))
-        # add streamlines
-        #slc.annotate_streamlines(("gas", "magnetic_field_z"), ("gas", "magnetic_field_x"), color="white", factor=1, density=1.5)
-        #slc.hide_colorbar("density")
-        slc.annotate_grids()
-        slc.annotate_line_integral_convolution(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"),lim=(0.5,0.65))
-
-        fig = slc.export_to_mpl_figure((1,1), cbar_mode="single") # export to matplotlib figure
-        ax = fig.axes[0]
-        #ax.set_xlabel("x (pc)")
-        #ax.set_ylabel("z (pc)")
-        num = "{:05.4f}".format(time.value) + " Myr"
-        ax.text(0.725, 0.95, num, transform=ax.transAxes, fontsize=16)
-  
-        num = str(i).zfill(5)
-        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_Bfield_artistic_ZX_{num}.png"), dpi=300, bbox_inches="tight")
         plt.close(fig)
 
     ###########################################################################
@@ -355,30 +292,11 @@ class yt_example_plots(pion2yt):
         slc1.annotate_streamlines(("gas", "magnetic_field_z"), ("gas", "magnetic_field_x"), color="white", factor=1, density=1.3)
         #slc1.annotate_line_integral_convolution(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"),lim=(0.5,0.65))
 
-        #fig1 = slc1.export_to_mpl_figure((1,1), cbar_mode="single") # export to matplotlib figure
-        #ax1 = fig1.axes[0] 
-        #mm = ax1.images
-        #cb = mm[-1].colorbar
-        #cb.remove()
-        #ax1.set_xlabel("x (pc)") 
-        #ax1.set_ylabel("y (pc)")
-        #ax1.text(0.8, 0.9, st, color="black", fontsize=12, transform=ax1.transAxes, 
-        #            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=1', alpha=0.5))
-
         plot1 = slc1.plots['density']
         plot1.figure = fig
         plot1.axes = grid[0].axes
         plot1.cax = grid.cbar_axes[0]
 
-
-        #new_ax = fig.add_axes((0.075,0.75,0.85,0.03))
-        #cb1 = ax1.images.colorbar
-        #cb1.remove()
-        #cb2 = plot1.figure.colorbar(ax1.images, cax=ax1, orientation='horizontal', location='top') #, format='%.1E'
-        #new_ax.tick_params(which="major", direction='inout', width=1, length=8)
-        #new_ax.tick_params(which="minor", direction='in', width=1, length=2)
-        #new_ax.tick_params(labelsize=14)
-        
         #cb1.set_label("$\\rho$ (g cm$^{-3}$)", loc='right', fontsize=14)
         slc1._setup_plots()
         plot1.axes.tick_params(which="major", direction="inout", width=1, length=8)
@@ -630,9 +548,37 @@ class yt_example_plots(pion2yt):
         fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_Proj_Xray003_{num}.png"), dpi=300, bbox_inches="tight")
         plt.close(fig)
 
+    ###########################################################################
+# i    - index in dataset
+# jmin - min of intensity colour scale
+# jmax - max of intensity colour scale
+# z    - zoom level (integer 2^n) >=1
+    def plot_Xray_intensity_XY(self, i, jmin, jmax, z):
+        print(f"Loading dataset: Sim Snapshot {i}")
+        ds = self.get_ds(self.evolution[i], quantities=["xray_emission"])
+        time = (ds.current_time.to("yr"))
+        print(time)
+        print(f"Successfully Loaded dataset: {str(ds)}")
+        print(f"Plotting x-ray intensity for snapshot {i}... for $\hat{z}$ projection")
+        # XY plane
+        #prj2 = yt.ProjectionPlot( ds, "z", ("gas", "xray_0.3"), width=(4.5, "pc"),origin="native", method="integrate", buff_size=(1024, 1024))
+        prj2 = yt.ProjectionPlot( ds, "z", ("gas", "xray_0.3"), origin="native", method="integrate", buff_size=(1024, 1024))
+        prj2.set_cmap("xray_0.3", "magma")
+        prj2.set_zlim(("gas", "xray_0.3"), zmin=(jmin, "erg/cm**2/s/arcmin**2"), zmax=(jmax, "erg/cm**2/s/arcmin**2"))
+        prj2.set_log("xray_0.3", True)
+        prj2.zoom(z)
+        prj2.set_figure_size(7)
 
-
-
+        fig = prj2.export_to_mpl_figure((1,1), cbar_mode="single")
+        ax = fig.axes[0]
+        num = "{:05.4f}".format(time)
+        ax.text(0.725, 0.95, num, transform=ax.transAxes, fontsize=16)
+        ax.tick_params(which="major", direction="inout", width=1, length=8)
+        ax.tick_params(which="minor", direction="in", width=1, length=2)
+        
+        num = str(i).zfill(5)
+        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_Proj_Xray003_XY_{num}.png"), dpi=300, bbox_inches="tight")
+        plt.close(fig)
 
 ###########################################################################
 ###########################################################################
