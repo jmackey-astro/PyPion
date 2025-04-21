@@ -8,7 +8,7 @@ import yt
 from yt.visualization.volume_rendering.api import PointSource
 yt.set_log_level("ERROR")
 #print(plt.style.available)
-plt.style.use('classic')
+#plt.style.use('classic')
 
 from matplotlib import ticker
 from matplotlib import cm
@@ -67,7 +67,7 @@ class yt_example_plots(pion2yt):
                 transform=ax.transAxes,
                 bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=1', alpha=0.5))
         num = str(i).zfill(5)
-        print(f"Saving image {self.sim_name}_{{plot_quantity}_{num}.png...")
+        print(f"Saving image {self.sim_name}_{plot_quantity}_{num}.png...")
         fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_{plot_quantity}_{num}.png"), dpi=300, bbox_inches="tight")
         #return fig
 
@@ -121,7 +121,7 @@ class yt_example_plots(pion2yt):
         print(f"Plotting rho+B for snapshot {i}...")
         # Coordinates are in (z,y,x) ordering.
         #slc = yt.SlicePlot(ds, "z", "density", width=(4.5, "pc"),origin="native")
-        slc = yt.SlicePlot(ds, "z", "density",origin="native")
+        slc = yt.SlicePlot(ds, "z", "density", origin="native")
         slc.set_cmap("density", "viridis")
         slc.set_figure_size(5)
         slc.set_log("density", True)
@@ -155,7 +155,7 @@ class yt_example_plots(pion2yt):
         # Coordinates are in (z,y,x) ordering.
         # plot density
         #slc = yt.SlicePlot(ds, "y", "density", width=(4.5, "pc"),origin="native")
-        slc = yt.SlicePlot(ds, "y", "density",origin="native")
+        slc = yt.SlicePlot(ds, "y", "density", origin="native")
         slc.swap_axes()
         slc.set_cmap("density", "viridis")
         slc.set_figure_size(5)
@@ -188,7 +188,7 @@ class yt_example_plots(pion2yt):
         print(f"Plotting rho+B for snapshot {i}...")
         
         fig = plt.figure()
-        grid = ImageGrid(fig, (0.075,0.075,0.85,0.85),
+        grid = ImageGrid(fig, (0.075, 0.075, 0.85, 0.85),
                 nrows_ncols = (1, 2),
                 axes_pad = 0.075,
                 label_mode = "all",
@@ -201,7 +201,7 @@ class yt_example_plots(pion2yt):
 
         # first plot: XZ plane, on the left
         #slc1 = yt.SlicePlot(ds, "y", "magnetic_field_magnitude", width=(4.5, "pc"),origin="native")
-        slc1 = yt.SlicePlot(ds, "y", "magnetic_field_magnitude",origin="native")
+        slc1 = yt.SlicePlot(ds, "z", "magnetic_field_magnitude", origin="native")
         #slc1.set_font({'family': 'serif', 'style': 'normal', 'weight': 'normal', 'size': 12})
         slc1.swap_axes()
         slc1.set_cmap("magnetic_field_magnitude", "magma")
@@ -211,7 +211,7 @@ class yt_example_plots(pion2yt):
         slc1.set_figure_size(7)
         #slc1.hide_colorbar()
         st = r"$t=$ " + f"{time:.3f}" 
-        slc1.annotate_text([0.325, 0.25], st, coord_system="figure", text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5}) # , fontsize=14
+        slc1.annotate_text([0.325, 0.25], st, coord_system="figure", text_args={"color": "black", "fontsize": 12}, inset_box_args={'boxstyle': 'square', 'pad': 0.3, 'facecolor': 'white', 'linewidth': 1, 'edgecolor': 'black', 'alpha': 0.5}) # , fontsize=14
         # add streamlines
         slc1.annotate_streamlines(("gas", "magnetic_field_z"), ("gas", "magnetic_field_x"), color="white", factor=zoom, density=1.3)
         #slc1.annotate_line_integral_convolution(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"),lim=(0.5,0.65))
@@ -351,8 +351,8 @@ class yt_example_plots(pion2yt):
         print(f"Plotting rho-2d for snapshot {i}...")
         
         fig = plt.figure()
-        grid = ImageGrid(fig, (0.075,0.075,0.85,0.85),
-                nrows_ncols = (2,1),
+        grid = ImageGrid(fig, (0.075, 0.075, 0.85, 0.85),
+                nrows_ncols = (2, 1),
                 axes_pad = 0.0,
                 label_mode = "all",
                 share_all = False,
@@ -404,79 +404,107 @@ class yt_example_plots(pion2yt):
         plt.close(fig)
 
     ###########################################################################
-    def plot_density_slice_both(self, i, dmin, dmax):
+    def plot_Vfield_Bfield_2d(self, i, Vmin, Vmax, Bmin, Bmax):
+
+
+        def _V_magnitude(field, data):
+            Vx = data[("gas", "velocity_x")]
+            Vy = data[("gas", "velocity_y")]
+            return np.sqrt(Vx ** 2 + Vy ** 2)
+
+        def _B_magnitude(field, data):
+            Bx = data[("gas", "magnetic_field_x")]
+            By = data[("gas", "magnetic_field_y")]
+            return np.sqrt(Bx ** 2 + By ** 2)
+
         print(f"Loading dataset: Sim Snapshot {i}")
-        ds = self.get_ds(self.evolution[i], quantities=["density"])
-        time = (ds.current_time.to("Myr"))
-        print(time)
+        ds = self.get_ds(self.evolution[i], quantities=["velocity", "magnetic_field"])
+
+        ds.add_field(("gas", "velocity_field_magnitude"),
+                     function=_V_magnitude,
+                     units="km/s",
+                     sampling_type="cell")
+
+        ds.add_field(("gas", "magnetic_field_magnitude"),
+                     function=_B_magnitude,
+                     units="gauss",
+                     sampling_type="cell")
+
+        time = ds.current_time.to("kyr")
+        print(f"Time: {time}")
         print(f"Successfully Loaded dataset: {str(ds)}")
-        print(f"Plotting rho slices for snapshot {i}...")
-        
-        fig = plt.figure()
-        grid = ImageGrid(fig, (0.075,0.075,0.85,0.85),
-                nrows_ncols = (1, 2),
-                axes_pad = 0.075,
-                label_mode = "all",
-                share_all = True,
-                cbar_mode="single",
-                cbar_location="right",
-                cbar_size="7%",
-                cbar_pad="28%")
+        print(f"Plotting velocity and magnetic field for snapshot {i}...")
 
+        fig = plt.figure(figsize=(10, 14))
+        grid = ImageGrid(fig, (0.075, 0.075, 0.85, 0.85),
+                         nrows_ncols=(2, 1),
+                         axes_pad=0.0,
+                         label_mode="all",
+                         share_all=False,
+                         cbar_mode="each",
+                         #cbar_location="right",
+                         cbar_size="5%",
+                         cbar_pad="1%")
 
-        # first plot: XZ plane, on the left
-        #slc1 = yt.SlicePlot(ds, "y", "density", width=(4.5, "pc"),origin="native")
-        slc1 = yt.SlicePlot(ds, "y", "density", origin="native")
-        #slc1.set_font({'family': 'serif', 'style': 'normal', 'weight': 'normal', 'size': 12})
+        # Upper Panel: Velocity
+        slc1 = yt.SlicePlot(ds, "theta", ("gas", "velocity_field_magnitude"))
         slc1.swap_axes()
-        slc1.set_cmap("density", "viridis")
-        slc1.set_zlim(("gas", "density"), zmin=(dmin, "g/cm**3"), zmax=(dmax, "g/cm**3"))
-        slc1.set_log("density", True)
+        slc1.set_cmap(("gas", "velocity_field_magnitude"), "magma")
+        slc1.set_zlim(("gas", "velocity_field_magnitude"), Vmin, Vmax)
+        #slc1.set_log(("gas", "velocity_field_magnitude"), True)
         slc1.set_figure_size(7)
-        #slc1.hide_colorbar()
-        st = r"$t=$ " + f"{time:.3f}" 
-        slc1.annotate_text([0.675, 0.265], st, coord_system="figure", text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5}) # , fontsize=14
+        #slc2.annotate_streamlines(("gas", "magnetic_field_y"), ("gas", "magnetic_field_x"), color="white", factor=1, density=1.3)
+        slc1.annotate_quiver(("gas", "velocity_y"), ("gas", "velocity_x"), color="white",
+                             factor=25, scale=45, normalize=True)
 
-        plot1 = slc1.plots['density']
+        st = r"$t=$ " + f"{time:.3f}"
+
+        slc1.annotate_text([0.85, 0.325], st, coord_system="figure", text_args={"color": "white", "fontsize": 2},
+                           inset_box_args={'boxstyle': 'square', 'pad': 0.3, 'facecolor': 'white', 'linewidth': 1, 'edgecolor': 'black', 'alpha': 0.5}
+                           )
+
+        slc1.annotate_text([0.85, 0.6], r"$|V|$ [km/s]", coord_system="figure", text_args={"color": "black", "fontsize": 2},
+                           inset_box_args={'boxstyle': 'square', 'pad': 0.3, 'facecolor': 'white', 'linewidth': 1, 'edgecolor': 'black', 'alpha': 0.5}
+                           )
+
+        plot1 = slc1.plots[("gas", "velocity_field_magnitude")]
         plot1.figure = fig
         plot1.axes = grid[0].axes
         plot1.cax = grid.cbar_axes[0]
-
         slc1._setup_plots()
-        plot1.axes.tick_params(which="major", direction="inout", width=1, length=8)
-        plot1.axes.tick_params(which="minor", direction="in", width=1, length=2)
-        plot1.axes.yaxis.set_label_coords(-0.1,0.5)
-        plot1.axes.xaxis.set_label_coords(0.5,-0.1)
-      
-        # second plot: XY plane, on the right
-        #slc2 = yt.SlicePlot(ds, "z", "density", width=(4.5, "pc"),origin="native")
-        slc2 = yt.SlicePlot(ds, "z", "density", origin="native")
-        #slc2.set_font({'family': 'serif', 'style': 'normal', 'weight': 'normal', 'size': 12})
-        slc2.set_cmap("density", "viridis")
+        grid.cbar_axes[0].set_ylabel("")
+
+        # Lower Panel: Magnetic Field Magnitude
+        slc2 = yt.SlicePlot(ds, "theta", ("gas", "magnetic_field_magnitude"))
+        slc2.swap_axes()
+        #slc2.flip_horizontal()
+        slc2.flip_vertical()
+        slc2.set_cmap(("gas", "magnetic_field_magnitude"), "magma")
+        #slc2.set_zlim(("gas", "magnetic_field_magnitude"), Bmin, Bmax)
+        slc2.set_log(("gas", "magnetic_field_magnitude"), True)
         slc2.set_figure_size(7)
-        slc2.set_log("density", True)
-        #slc2.zoom(16)
-        slc2.set_zlim(("gas", "density"), zmin=(dmin, "g/cm**3"), zmax=(dmax, "g/cm**3"))
-        #slc2.hide_colorbar()
-        plot2 = slc2.plots['density']
+        #slc2.annotate_streamlines(("gas", "magnetic_field_y"), ("gas", "magnetic_field_x"), color="white", factor=1, density=1.3)
+        slc2.annotate_quiver(("gas", "magnetic_field_y"), ("gas", "magnetic_field_x"), color="white",
+                             factor=25, scale=45, normalize=True)
+
+        slc2.annotate_text([0.15, 0.6], r"$|B|$ G", coord_system="figure",
+                           text_args={"color": "black", "fontsize": 2},
+                           inset_box_args={'boxstyle': 'square', 'pad': 0.3, 'facecolor': 'black', 'linewidth': 1,
+                                           'edgecolor': 'black', 'alpha': 0.3}
+                           )
+        plot2 = slc2.plots[("gas", "magnetic_field_magnitude")]
         plot2.figure = fig
         plot2.axes = grid[1].axes
         plot2.cax = grid.cbar_axes[1]
-        plot2.axes.yaxis.tick_right()
-        #plot2.axes.yaxis.set_label_position("right")
-        #new_ax = plot2.figure.add_axes((0.025,0.94,0.75,0.025))
-        #cb2 = plot2.figure.colorbar(plot2.image, new_ax, extend='both', orientation='horizontal', format='%.0E')
         slc2._setup_plots()
-        plot2.axes.yaxis.set_label_position("right")
-        #plot2.axes.yaxis.set_label("right")
-        plot2.axes.yaxis.set_label_coords(1.1,0.5)
-        plot2.axes.xaxis.set_label_coords(0.5,-0.1)
-        plot2.axes.tick_params(which="major", direction="inout", width=1, length=8)
-        plot2.axes.tick_params(which="minor", direction="in", width=1, length=2)
-        
+        grid.cbar_axes[1].set_ylabel("")
+
+        # Save figure
         num = str(i).zfill(5)
-        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_rho_slices_{num}.png"), dpi=300, bbox_inches="tight")
+        fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_VBfield2d_{num}.png"),
+                    dpi=300, bbox_inches="tight")
         plt.close(fig)
+
 
     ###########################################################################
     def plot_Xray_intensity(self, i, jmin, jmax):
