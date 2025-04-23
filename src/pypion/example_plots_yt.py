@@ -404,14 +404,39 @@ class yt_example_plots(pion2yt):
         plt.close(fig)
 
     ###########################################################################
+    ###########################################################################
     def plot_Vfield_Bfield_2d(self, i, Vmin, Vmax, Bmin, Bmax):
+        '''
+        Plots a 2D slice of the velocity and magnetic field magnitudes from a simulation snapshot.
 
+        The upper panel shows the velocity magnitude with velocity vectors overlaid.
+        The lower panel shows the magnetic field magnitude with magnetic field vectors overlaid.
 
+        Parameters:
+        -----------
+        i : int
+            Index of the simulation snapshot to load and plot.
+        Vmin : float
+            Minimum value for the velocity magnitude color scale.
+        Vmax : float
+            Maximum value for the velocity magnitude color scale.
+        Bmin : float
+            Minimum value for the magnetic field magnitude color scale.
+        Bmax : float
+            Maximum value for the magnetic field magnitude color scale.
+
+        Returns:
+        --------
+        None
+        '''
+
+        # Define a derived field: magnitude of velocity vector
         def _V_magnitude(field, data):
             Vx = data[("gas", "velocity_x")]
             Vy = data[("gas", "velocity_y")]
             return np.sqrt(Vx ** 2 + Vy ** 2)
 
+        # Define a derived field: magnitude of magnetic field vector
         def _B_magnitude(field, data):
             Bx = data[("gas", "magnetic_field_x")]
             By = data[("gas", "magnetic_field_y")]
@@ -420,6 +445,7 @@ class yt_example_plots(pion2yt):
         print(f"Loading dataset: Sim Snapshot {i}")
         ds = self.get_ds(self.evolution[i], quantities=["velocity", "magnetic_field"])
 
+        # Register derived fields in yt dataset
         ds.add_field(("gas", "velocity_field_magnitude"),
                      function=_V_magnitude,
                      units="km/s",
@@ -430,11 +456,13 @@ class yt_example_plots(pion2yt):
                      units="gauss",
                      sampling_type="cell")
 
+        # Current simulation time
         time = ds.current_time.to("kyr")
         print(f"Time: {time}")
         print(f"Successfully Loaded dataset: {str(ds)}")
         print(f"Plotting velocity and magnetic field for snapshot {i}...")
 
+        # Set up a figure with two rows for the two panels
         fig = plt.figure(figsize=(10, 14))
         grid = ImageGrid(fig, (0.075, 0.075, 0.85, 0.85),
                          nrows_ncols=(2, 1),
@@ -442,31 +470,31 @@ class yt_example_plots(pion2yt):
                          label_mode="all",
                          share_all=False,
                          cbar_mode="each",
-                         #cbar_location="right",
                          cbar_size="5%",
                          cbar_pad="1%")
 
-        # Upper Panel: Velocity
+        # ================= Upper Panel: Velocity =================
         slc1 = yt.SlicePlot(ds, "theta", ("gas", "velocity_field_magnitude"))
         slc1.swap_axes()
         slc1.set_cmap(("gas", "velocity_field_magnitude"), "magma")
         slc1.set_zlim(("gas", "velocity_field_magnitude"), Vmin, Vmax)
-        #slc1.set_log(("gas", "velocity_field_magnitude"), True)
         slc1.set_figure_size(7)
-        #slc2.annotate_streamlines(("gas", "magnetic_field_y"), ("gas", "magnetic_field_x"), color="white", factor=1, density=1.3)
+
+        # Add velocity vectors (quiver plot)
         slc1.annotate_quiver(("gas", "velocity_y"), ("gas", "velocity_x"), color="white",
                              factor=25, scale=45, normalize=True)
 
+        # Annotate time and label
         st = r"$t=$ " + f"{time:.3f}"
+        slc1.annotate_text([0.85, 0.325], st, coord_system="figure", text_args={"color": "black", "fontsize": 2},
+                           inset_box_args={'boxstyle': 'square', 'pad': 0.3, 'facecolor': 'white',
+                                           'linewidth': 1, 'edgecolor': 'black', 'alpha': 0.5})
+        slc1.annotate_text([0.85, 0.55], r"$|\vec{v}|$ km/s", coord_system="figure",
+                           text_args={"color": "black", "fontsize": 2},
+                           inset_box_args={'boxstyle': 'square', 'pad': 0.3, 'facecolor': 'white',
+                                           'linewidth': 1, 'edgecolor': 'black', 'alpha': 0.5})
 
-        slc1.annotate_text([0.85, 0.325], st, coord_system="figure", text_args={"color": "white", "fontsize": 2},
-                           inset_box_args={'boxstyle': 'square', 'pad': 0.3, 'facecolor': 'white', 'linewidth': 1, 'edgecolor': 'black', 'alpha': 0.5}
-                           )
-
-        slc1.annotate_text([0.85, 0.6], r"$|V|$ [km/s]", coord_system="figure", text_args={"color": "black", "fontsize": 2},
-                           inset_box_args={'boxstyle': 'square', 'pad': 0.3, 'facecolor': 'white', 'linewidth': 1, 'edgecolor': 'black', 'alpha': 0.5}
-                           )
-
+        # Set plot to corresponding grid location
         plot1 = slc1.plots[("gas", "velocity_field_magnitude")]
         plot1.figure = fig
         plot1.axes = grid[0].axes
@@ -474,24 +502,26 @@ class yt_example_plots(pion2yt):
         slc1._setup_plots()
         grid.cbar_axes[0].set_ylabel("")
 
-        # Lower Panel: Magnetic Field Magnitude
+        # ================= Lower Panel: Magnetic Field =================
         slc2 = yt.SlicePlot(ds, "theta", ("gas", "magnetic_field_magnitude"))
         slc2.swap_axes()
-        #slc2.flip_horizontal()
-        slc2.flip_vertical()
+        slc2.flip_vertical()  # Flip to match expected orientation
         slc2.set_cmap(("gas", "magnetic_field_magnitude"), "magma")
-        #slc2.set_zlim(("gas", "magnetic_field_magnitude"), Bmin, Bmax)
+        slc2.set_zlim(("gas", "magnetic_field_magnitude"), Bmin, Bmax)
         slc2.set_log(("gas", "magnetic_field_magnitude"), True)
         slc2.set_figure_size(7)
-        #slc2.annotate_streamlines(("gas", "magnetic_field_y"), ("gas", "magnetic_field_x"), color="white", factor=1, density=1.3)
+
+        # Add magnetic field vectors
         slc2.annotate_quiver(("gas", "magnetic_field_y"), ("gas", "magnetic_field_x"), color="white",
                              factor=25, scale=45, normalize=True)
 
-        slc2.annotate_text([0.15, 0.6], r"$|B|$ G", coord_system="figure",
+        # Annotate label
+        slc2.annotate_text([0.15, 0.55], r"$|\vec{B}|$ G", coord_system="figure",
                            text_args={"color": "black", "fontsize": 2},
-                           inset_box_args={'boxstyle': 'square', 'pad': 0.3, 'facecolor': 'black', 'linewidth': 1,
-                                           'edgecolor': 'black', 'alpha': 0.3}
-                           )
+                           inset_box_args={'boxstyle': 'square', 'pad': 0.3, 'facecolor': 'black',
+                                           'linewidth': 1, 'edgecolor': 'black', 'alpha': 0.1})
+
+        # Set plot to corresponding grid location
         plot2 = slc2.plots[("gas", "magnetic_field_magnitude")]
         plot2.figure = fig
         plot2.axes = grid[1].axes
@@ -499,12 +529,65 @@ class yt_example_plots(pion2yt):
         slc2._setup_plots()
         grid.cbar_axes[1].set_ylabel("")
 
-        # Save figure
+        # Save the resulting figure to file
         num = str(i).zfill(5)
         fig.savefig(os.path.join(self.img_dir, f"{self.sim_name}_VBfield2d_{num}.png"),
                     dpi=300, bbox_inches="tight")
         plt.close(fig)
 
+    ###########################################################################
+    def get_1ddata_from_2ddata(self, i, length, theta, resolution=64):
+        import numpy as np
+        from scipy.interpolate import griddata
+
+        # Convert angle to radians
+        theta_rad = np.radians(theta)
+
+        # Define the number of points along the line and generate indices
+        # For simplicity, we will assume you want to map the length to the grid resolution
+        indices = np.linspace(0, resolution - 1, resolution)
+        r_indices = indices * np.cos(theta_rad)
+        z_indices = indices * np.sin(theta_rad)
+
+        print(r_indices, z_indices)
+
+        line_points = np.vstack((r_indices, z_indices)).T  # shape: (resolution, 2)
+
+        # Load dataset
+        print(f"Loading dataset: Sim Snapshot {i}")
+        ds = self.get_ds(self.evolution[i], quantities=["velocity", "magnetic_field", "density"])
+        ad = ds.all_data()
+
+        # Get grid cell positions in r and z (indices, not physical coordinates)
+        r_index = ad[('index', 'r')].v  # Get r indices
+        z_index = ad[('index', 'z')].v  # Get z indices
+
+        # Get the density field directly from the grid data
+        density = ad['density'].v
+
+        # Flatten the grid data for easier processing
+        pos_indices = np.vstack([r_index.ravel(), z_index.ravel()]).T  # shape: (n_cells, 2)
+
+        print(pos_indices)
+        exit(1)
+
+        # Interpolate density along the line using the grid indices
+        interpolated_density = griddata(pos_indices, density.ravel(), line_points, method='linear')
+
+        # Calculate distance along the line (Euclidean distance) based on grid indices
+        line_distances = np.sqrt(np.diff(r_indices) ** 2 + np.diff(z_indices) ** 2)
+
+        # Compute cumulative distance along the line from origin
+        distance = np.cumsum(line_distances)
+
+        # Remove NaNs if interpolation falls outside domain
+        mask = ~np.isnan(interpolated_density)
+        distance = distance[mask]
+        interpolated_density = interpolated_density[mask]
+
+        # Output the distance and interpolated density
+        print("Distance along the line (in grid units):", distance)
+        print("Interpolated density values:", interpolated_density)
 
     ###########################################################################
     def plot_Xray_intensity(self, i, jmin, jmax):
@@ -536,7 +619,9 @@ class yt_example_plots(pion2yt):
         prj1.set_log("xray_0.3", True)
         prj1.set_figure_size(7)
         st = r"$t=$ " + f"{time:.3f}" 
-        prj1.annotate_text([0.675, 0.265], st, coord_system="figure", text_args={"color":"black", "fontsize":12}, inset_box_args={'boxstyle':'square', 'pad':0.3, 'facecolor':'white', 'linewidth':1, 'edgecolor':'black', 'alpha':0.5})
+        prj1.annotate_text([0.675, 0.265], st, coord_system="figure", text_args={"color":"black", "fontsize":12},
+                           inset_box_args={'boxstyle': 'square', 'pad': 0.3, 'facecolor':'white', 'linewidth':1,
+                                           'edgecolor':'black', 'alpha': 0.5})
         # add streamlines
         #prj1.annotate_streamlines(("gas", "magnetic_field_z"), ("gas", "magnetic_field_x"), color="white", factor=1, density=1.3)
         #slc1.annotate_line_integral_convolution(("gas", "magnetic_field_x"), ("gas", "magnetic_field_y"),lim=(0.5,0.65))
