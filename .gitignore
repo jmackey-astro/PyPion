@@ -1,0 +1,33 @@
+# User defined
+examples/img
+examples/NEMOv2
+.idea/
+
+
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+
+# Mac / Linux / Windows system files
+.DS_Store
+Thumbs.db
