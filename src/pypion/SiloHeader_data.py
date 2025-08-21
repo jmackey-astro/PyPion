@@ -15,7 +15,7 @@ import sys
 # I recommend installed silo here at ~/.local/silo/
 from pathlib import Path
 home = str(Path.home())
-sys.path.insert(0,home+"/.local/silo/")
+sys.path.insert(0,home+"/.local/silo/lib")
 import Silo
 
 import numpy as np

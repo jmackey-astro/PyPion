@@ -1,6 +1,6 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: pypion
-Version: 1.0.3
+Version: 1.1.1
 Summary: Python package to open Silo data files from PION
 Home-page: https://git.dias.ie/massive-stars-software/pypion
 Author: Sam Green
@@ -12,6 +12,10 @@ Classifier: Operating System :: OS Independent
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown
 License-File: LICENSE.md
+Requires-Dist: numpy
+Requires-Dist: astropy
+Requires-Dist: yt
+Dynamic: license-file
 
 # Python Library for PION
 Created - 26|08|2019,
