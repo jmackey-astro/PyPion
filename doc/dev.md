@@ -17,7 +17,7 @@ python3 -m pip install astropy
 python3 -m pip install numpy pandas matplotlib 
 
 # install pypion into the virtual env:
-git clone git@github.com:jmackey-astro/PyPion.git 
+git clone git@github.com:greensh16/PyPion.git 
 cd PyPion/
 git checkout 3-add-yt-db-creator
 python3 setup.py build
