@@ -1,8 +1,6 @@
 LICENSE.md
 README.md
 pyproject.toml
-setup.cfg
-setup.py
 src/pypion/PlotData.py
 src/pypion/Plotting_Classes.py
 src/pypion/ReadData.py
@@ -11,7 +9,9 @@ src/pypion/__init__.py
 src/pypion/argparse_command.py
 src/pypion/derived_fields_yt.py
 src/pypion/example_plots_yt.py
+src/pypion/microphysics.py
 src/pypion/pion2yt.py
+src/pypion/util.py
 src/pypion.egg-info/PKG-INFO
 src/pypion.egg-info/SOURCES.txt
 src/pypion.egg-info/dependency_links.txt

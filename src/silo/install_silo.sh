@@ -115,10 +115,11 @@ then
   cd $SRC_DIR
   make clean
 
-  if [[ MAKE_UNAME == "OSX" ]]
+  if [[ $MAKE_UNAME == "OSX" ]]
     then
+    echo "RUNNING CONFIGURE FOR OS"
     ./configure --prefix=$HOME/.local/silo \
-      --enable-browser --with-readline=no \
+      --disable-browser --without-readline \
       --disable-fortran \
       --disable-silex --disable-fpzip \
       --enable-pythonmodule --enable-shared

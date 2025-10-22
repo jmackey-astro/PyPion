@@ -4,3 +4,28 @@ requires = [
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "pypion"
+version = "1.1.2"
+description = "Python package to open Silo data files from PION"
+readme = "README.md"
+license = { file = "LICENSE.md" }
+authors = [{ name = "Sam Green", email = "green@cp.dias.ie" }]
+classifiers = [
+    'Programming Language :: Python :: 3',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: OS Independent' ]
+keywords = [ 'pypion', 'visualisation', 'computational fluid dynamics']
+dependencies = [
+    "numpy >= 2.0.0",
+    "astropy >= 7.0.0",
+    "yt >= 4.4.0"
+]
+requires-python = ">=3.6"
+
+[project.urls]
+Homepage = "https://github.com/greensh16/PyPion"
+
+
+
