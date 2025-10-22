@@ -1,6 +1,5 @@
 # Python Library for PION
 Created - 26|08|2019,
-Modified - 31|05|2022
 
 Welcome to the Python Library that does post-processing on the .Silo simulation data files outputted from PION. The library works on nested-grid and uniform-grid, and 3D and 2D Silo files.
 
@@ -14,7 +13,7 @@ You can now install PyPion via PyPi:
 
 In some cases you may need to use `sudo` or install pip with: `sudo apt install python3-pip`
 
-*Note: This is still in testing phase so errors may occur when installing. Please report problems to green@cp.dias.ie
+*Note: This is still in testing phase so errors may occur when installing. Please report problems to [pypion on github](https://github.com/greensh16/PyPion/issues)
 
 # Install Silo package for python3:
 
@@ -33,4 +32,4 @@ The install script for Silo can be found at /src/silo/ in this repository. Pleas
 
 * Samuel Green - green@cp.dias.ie
 * Jonathan Mackey
-
+* Arun Mathew
